@@ -144,8 +144,10 @@ export async function keepAllSpaces(page) {
   while (Date.now() < deadline) {
     if (await onTimer()) return;
     if (!pressedAt && (await button.isVisible().catch(() => false))) {
-      await button.click().catch(() => undefined);
+      // The app keeps the spaces by itself a moment after the notice shows, which removes the button mid-click:
+      // a default click then waits out its whole 30 s timeout for a button that is gone. Short timeout, then look again.
       pressedAt = Date.now();
+      await button.click({ timeout: 2000 }).catch(() => undefined);
     }
     // A join that was not approved by a one-time code (the keyless tests) never goes to the Timer; an approved one may show the notice for a moment and still does.
     if (pressedAt && Date.now() - pressedAt > 4000) return;
