@@ -1,5 +1,16 @@
 # What's new
 
+## 2026-10-27: Phone and newcomer touches
+
+- The header **▶** starts with the text you typed on the Timer page. On phones the header buttons are bigger and **Continue** is just its icon.
+- **Organize** has a **← Settings** link. The command palette hides keyboard hints on touch screens.
+- Notes: bigger formatting buttons on touch screens, with **Undo** and **Redo**. An empty Notes page offers **New note** and **Today's note**. Enter in a note's title moves to the text.
+- Reports: **Download CSV** is next to **Copy as Markdown**. Projects that share a name show as **Project · Client**.
+- Import links to the steps in Toggl and says "not a valid date" for a date that does not exist.
+- Devices: ids, fingerprints, switching to device keys and Reset moved under **Advanced**.
+- Sharing: **Copy link**, and the name offered is yours, not "Chrome on Linux".
+- The alpha banner no longer touches the screen edges on a phone.
+
 ## 2026-10-25: Other accounts, and a page for each space and account
 
 - **Settings** has an **Other accounts** list under the spaces table: each account's name, short fingerprint and what you share. The per-row **Share…** link is gone; use **+ Share with an account** or the space's page.
