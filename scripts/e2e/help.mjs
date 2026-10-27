@@ -114,23 +114,25 @@ await fresh.getByRole('link', { name: /^Help/ }).click();
 check(await poll(() => fresh.locator('.help-dot').count().then((n) => n === 0)) >= 0, 'opening What\'s new clears the dot');
 check((await fresh.evaluate(() => localStorage.getItem('app-changes-seen'))) > '2020', 'and remembers it');
 const changes = await fresh.locator('#help-whats-new .change').count();
-check(changes >= 1 && changes <= 5, `What's new lists the latest entries (${changes})`);
+check(changes >= 1 && changes <= 10, `What's new lists the latest entries (${changes})`);
 const newest = (await import('node:fs')).readFileSync(new URL('../../docs/user/changes.md', import.meta.url), 'utf8').match(/^## (\d{4}-\d\d-\d\d):/m)?.[1] ?? '';
 check(newest !== '' && (await fresh.locator('#help-whats-new .change').first().innerText()).includes(newest), 'newest first');
+const dates = await fresh.locator('#help-whats-new .change .change-date').allInnerTexts();
+check(dates.length > 1 && dates.every((d, i) => i === 0 || dates[i - 1] >= d), `What's new is in date order (${dates.join(', ')})`);
 await fresh.close();
 
-// After a few days of use with data and no backup, the banner nudges (reusing the backup banner's rules).
+// With data and no backup the bar shows at once and stays until the first backup works (it cannot be snoozed).
 const nudge = await context.newPage();
-await nudge.goto(BASE + '?test#/timer');
+await nudge.goto(BASE + '?test&backupbar#/timer');
 await nudge.waitForFunction(() => window.__backup !== undefined);
 await nudge.evaluate(async () => { await window.__backup.ready(); window.__backup.seed('personal', 'Personal'); });
-check((await nudge.locator('.backup-banner').count()) === 0, 'a new device with data and no backup: no banner yet');
-await nudge.evaluate(() => localStorage.setItem('app-backup-first-seen', String(Date.now() - 4 * 86_400_000)));
-await nudge.reload();
-await nudge.waitForFunction(() => window.__backup !== undefined);
-check(await poll(async () => /Turn on backups/.test(await nudge.locator('.backup-banner').innerText().catch(() => ''))), 'four days in with no backup: the banner says Turn on backups');
-await nudge.getByRole('button', { name: 'Remind me tomorrow' }).click();
-check((await nudge.locator('.backup-banner').count()) === 0, 'Remind me tomorrow hides it');
+check(await poll(async () => /No backup yet/.test(await nudge.locator('.backup-banner').innerText().catch(() => ''))), 'with data and no backup: the bar says No backup yet');
+check((await nudge.getByRole('button', { name: 'Remind me tomorrow' }).count()) === 0, 'and there is no snooze');
+await nudge.locator('[data-backup-never]').getByRole('button', { name: 'Set up' }).click();
+check(await poll(async () => nudge.url().endsWith('#/settings/backup')), 'Set up opens Backup & restore');
+await nudge.locator('[data-storage]').waitFor();
+check(/Storage:/.test(await nudge.locator('[data-storage]').innerText()), 'Backup & restore says what the browser keeps (Storage)');
+check(/deletes Yak's data/.test(await nudge.locator('.backups').innerText()), 'and that clearing site data deletes Yak\'s data');
 await nudge.close();
 
 // The alpha notice shows once per device.

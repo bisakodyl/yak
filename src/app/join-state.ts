@@ -32,9 +32,9 @@ export const joinState = {
 };
 
 /** Join with a code: loads the invite code on first use. */
-export async function joinWithCode(code: string, signalingUrl: string): Promise<void> {
+export async function joinWithCode(code: string, signalingUrl: string, name?: string): Promise<void> {
   const { invites } = await import('./invites');
-  await invites.joinWithCode(code, signalingUrl);
+  await invites.joinWithCode(code, signalingUrl, name);
 }
 
 /** The person saw the same code on both screens. */

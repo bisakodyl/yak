@@ -9,6 +9,8 @@ import { invites } from '../app/invites';
 import { Button } from '../app/ui';
 import { withKey } from '../app/key-prompt';
 import { PairingExtras } from './extras';
+import { devicesMap, readDevices, setDeviceName, suggestedName } from '../core/devices';
+import { useYVersion } from '../app/hooks';
 
 /**
  * Device keys on Devices (#257): in compatible mode, the review of every device and the one-way
@@ -37,6 +39,34 @@ function Fingerprint(props: { keys: DeviceKeyRecord | undefined }) {
     };
   }, [props.keys?.sign.x]);
   return fp ? <code class="fingerprint">{fp}</code> : null;
+}
+
+/** This device's name, asked for when it makes a one-time code: the new device and the device lists show it instead of an id. */
+function OwnName(props: { account: Y.Doc; deviceId: string }) {
+  useYVersion(devicesMap(props.account) as unknown as Y.AbstractType<unknown>);
+  const [draft, setDraft] = useState<string | undefined>();
+  const saved = readDevices(props.account).get(props.deviceId)?.name;
+  return (
+    <div class="row">
+      <label>
+        Name of this device{' '}
+        <input
+          aria-label="Name of this device"
+          placeholder={suggestedName(navigator.userAgent)}
+          value={draft ?? saved ?? ''}
+          size={24}
+          maxLength={40}
+          autocomplete="off"
+          onInput={(e) => setDraft((e.target as HTMLInputElement).value)}
+          onChange={(e) => {
+            setDeviceName(props.account, props.deviceId, (e.target as HTMLInputElement).value);
+            setDraft(undefined);
+          }}
+        />
+      </label>
+      <span class="hint">Your new device shows this name for it. Left empty, the suggestion is saved.</span>
+    </div>
+  );
 }
 
 function stragglerText(d: SwitchDevice): string {
@@ -165,6 +195,7 @@ export function DeviceKeysPanel(props: { account: Y.Doc; deviceId: string; seen:
         </>
       )}
       <h3>Add a device</h3>
+      <OwnName account={account} deviceId={deviceId} />
       {!hosting ? (
         <>
           <p class="hint">Make a one-time code and enter it on the new device. It works once and for 15 minutes; you approve the device here after comparing a code both screens show.</p>
@@ -176,18 +207,6 @@ export function DeviceKeysPanel(props: { account: Y.Doc; deviceId: string; seen:
         </>
       ) : (
         <div class="invite" data-collapsed={settled ? '' : undefined}>
-          {settled ? null : (
-            <>
-              <div class="secret-box">
-                <p class="hint">One-time code, until {new Date(hosting.expiresAt).toLocaleTimeString()}</p>
-                <code class="secret" data-invite-code>
-                  {grouped(hosting.code)}
-                </code>
-              </div>
-              <PairingExtras secret={hosting.code} signaling={hosting.signalingUrl} onSecret={() => undefined} />
-            </>
-          )}
-          {hosting.requests.length === 0 ? <p class="hint">On the new device: open Yak → Join my other device, and enter this code or scan it.</p> : null}
           <ul class="invite-requests">
             {hosting.requests.map((r) => (
               <li key={r.request.deviceId} data-device={r.request.deviceId} data-state={r.state}>
@@ -211,6 +230,18 @@ export function DeviceKeysPanel(props: { account: Y.Doc; deviceId: string; seen:
               </li>
             ))}
           </ul>
+          {settled ? null : (
+            <>
+              <div class="secret-box">
+                <p class="hint">One-time code, until {new Date(hosting.expiresAt).toLocaleTimeString()}</p>
+                <code class="secret" data-invite-code>
+                  {grouped(hosting.code)}
+                </code>
+              </div>
+              <PairingExtras secret={hosting.code} signaling={hosting.signalingUrl} onSecret={() => undefined} />
+            </>
+          )}
+          {hosting.requests.length === 0 ? <p class="hint">On the new device: open Yak → Join my other device, and enter this code or scan it.</p> : null}
           {hosting.used && !settled ? (
             <p class="hint" role="status" data-invite-used>
               This code is used up: it admits one device. Make a new one to add another.

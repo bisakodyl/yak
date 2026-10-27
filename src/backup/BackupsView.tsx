@@ -25,6 +25,25 @@ import { type BackupService, DEFAULT_STALE_HOURS, backupHealth } from './service
 import { errText, listBackups, type BackupListing } from './store';
 import { usePassphraseState } from './passphrase-state';
 import { PassphraseSection } from './PassphraseSection';
+import { requestPersistence, type PersistenceResult } from '../core/persistence';
+
+/** Whether the browser promised to keep this site's data (`storage.persist()`), asked again each time the page opens. */
+function StorageLine() {
+  const [result, setResult] = useState<PersistenceResult | undefined>();
+  useEffect(() => {
+    let live = true;
+    void requestPersistence().then((r) => live && setResult(r));
+    return () => {
+      live = false;
+    };
+  }, []);
+  return (
+    <p class="hint" data-storage={result ?? 'checking'}>
+      <strong>Storage:</strong>{' '}
+      {result === 'granted' ? 'kept. The browser promised not to clear Yak\'s data on its own.' : result === undefined ? 'checking…' : 'may be cleared by the browser when this device runs low on space.'} Clearing site data for this site in your browser deletes Yak's data, and only a backup brings it back.
+    </p>
+  );
+}
 
 const STALE_CHOICES = [12, 24, 72, 168];
 
@@ -475,6 +494,7 @@ export function BackupsView({ params }: ViewProps) {
       <p class="help-link"><a href="#/help/backups">How this works</a></p>
       <p class={`backup-health ${health.ok ? 'ok' : 'warn'}`}>{health.text}</p>
       {state.notice ? <p class="hint">{state.notice}</p> : null}
+      <StorageLine />
 
       <h2>Backup folder</h2>
       {picker ? (

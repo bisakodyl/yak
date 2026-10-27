@@ -217,6 +217,11 @@ button.te-dur:hover { background: var(--surface); box-shadow: inset 0 0 0 1px va
   .te-dur, .te-line > .total { min-width: 3.5rem; }
   .te-child > .te-line { padding-left: var(--space-6); }
 }
+/* Narrow: tags wrap under the project instead of squeezing its chip away; the project name keeps room to show (F-20). */
+@media (max-width: 58rem) {
+  .te-meta { flex-wrap: wrap; overflow: visible; row-gap: 0.1rem; }
+  .te-meta .project-chip { flex: 0 1 auto; min-width: min(100%, 6rem); max-width: 100%; }
+}
 /* Tablet: description on its own line, project and tags under it, so neither is cut; the time range stays. */
 @media (min-width: 40.01rem) and (max-width: 58rem) {
   .te-main { flex-direction: column; align-items: stretch; gap: 0; }

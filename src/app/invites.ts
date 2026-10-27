@@ -1,7 +1,7 @@
 import { readAccountKeys } from '../core/account-keys';
 import { KEYS_REQUIRED_LEVEL } from '../core/account-keys';
 import { checkApproval } from '../core/key-certs';
-import { deviceName, suggestedName } from '../core/devices';
+import { deviceName, setDeviceName, suggestedName } from '../core/devices';
 import { encodeText } from '../core/bytes';
 import { wrapFor } from '../core/keys';
 import type { DocumentStore } from '../core/doc-store';
@@ -93,9 +93,11 @@ class Invites {
   private last: { code: string; signalingUrl: string } | undefined;
 
   /** Join with a one-time invite: this device makes keys and asks to be approved (#311). An account's own sync code admits nobody. */
-  async joinWithCode(code: string, signalingUrl: string): Promise<void> {
+  async joinWithCode(code: string, signalingUrl: string, name?: string): Promise<void> {
     await this.ready;
     const d = this.deps as Deps;
+    // The name asked for before joining is saved first, so the request carries it and the joined account keeps it.
+    if (name?.trim()) setDeviceName(d.state.doc, d.me, name.trim());
     normalizeSecret(code);
     this.last = { code, signalingUrl };
     await this.ask(d);
@@ -169,6 +171,8 @@ class Invites {
     const secret = d.sync.secret;
     if (!secret) throw new Error('This device is not syncing.');
     this.close();
+    // The new device shows this one by name: save a suggestion when the person has not named it.
+    if (!deviceName(d.state.doc, d.me)) setDeviceName(d.state.doc, d.me, suggestedName(navigator.userAgent));
     const code = generateSecret();
     const signalingUrl = d.sync.status.signalingUrl;
     const fp = keyTrust.accountFp as string;

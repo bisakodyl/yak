@@ -239,5 +239,11 @@ li.selected > .tree-row, .search-hits li.selected, .task-list li.selected, .task
   .note-format-bar button { flex: 1 0 auto; min-width: 2.5rem; min-height: 2.5rem; }
 }
 
+/* Typing on a phone with the keyboard up: the page header goes, so the text keeps the room (set by NoteEditor from visualViewport). */
+@media (max-width: 48rem) {
+  html[data-note-typing] .topbar { display: none; }
+  html[data-note-typing] .note-editor { padding-bottom: 3.5rem; }
+}
+
 /* Attached files: the picker under the editor (the images and chips are styled inside the editor, editor.ts). */
 .note-add-file { margin: 0.25rem 0 1rem; color: var(--muted); font-size: var(--text-sm); }

@@ -11,6 +11,7 @@ import { navigate } from './router';
 import { pendingShare } from './pending-share';
 import { safeStorage } from './join';
 import { Button } from './ui';
+import { suggestedName } from '../core/devices';
 import { joinWithCode } from './join-state';
 import { JoinStatus } from './JoinStatus';
 
@@ -28,12 +29,13 @@ export function Welcome(props: { onStarted(): void }) {
   const [name, setName] = useState('Personal');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
+  const [deviceLabel, setDeviceLabel] = useState(() => suggestedName(navigator.userAgent));
 
   const join = async (): Promise<void> => {
     setError('');
     setBusy(true);
     try {
-      await joinWithCode(code, signaling);
+      await joinWithCode(code, signaling, deviceLabel);
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
     } finally {
@@ -63,6 +65,7 @@ export function Welcome(props: { onStarted(): void }) {
       <ul class="welcome-about">
         <li>Track your time, and keep notes and tasks in Markdown.</li>
         <li>Everything stays in this browser. No sign-up, no server.</li>
+        <li>Clearing this site's data in your browser deletes Yak's data. Set up a backup in Settings to be safe.</li>
         <li>Optional: sync between your own devices later.</li>
       </ul>
 
@@ -95,18 +98,28 @@ export function Welcome(props: { onStarted(): void }) {
         <summary>Already use {APP_NAME}? Join a device or restore a backup</summary>
         <div class="card welcome-choice">
           <h2>Join my other device</h2>
-          <p class="hint">On the other device open Settings, choose + in the table's header, then Make a one-time code, and enter or scan it here. That device approves this one. This device gets that account's spaces.</p>
+          <p class="hint">On the other device open Settings, choose + Add a device, then Make a one-time code, and enter or scan it here. That device approves this one. This device gets that account's spaces.</p>
           <div class="row">
             <input
               aria-label="One-time code"
               placeholder="One-time code from your other device"
               value={code}
               size={36}
+              autocapitalize="off"
+              autocorrect="off"
+              spellcheck={false}
+              autocomplete="off"
               onInput={(e) => setCode((e.target as HTMLInputElement).value)}
             />
             <Button variant="primary" disabled={busy || !code.trim()} onClick={() => void join()}>
               Join
             </Button>
+          </div>
+          <div class="row">
+            <label>
+              Name of this device{' '}
+              <input aria-label="Name of this device" value={deviceLabel} size={24} maxLength={40} autocomplete="off" onInput={(e) => setDeviceLabel((e.target as HTMLInputElement).value)} />
+            </label>
           </div>
           <JoinStatus />
           <Scanner onResult={scanned} onJoin={() => void join()} busy={busy || !code.trim()} />

@@ -132,13 +132,28 @@ export async function finish(...closables) {
 }
 
 /**
- * A device that has just joined an account keeps no spaces until they are chosen (nothing is sent to
- * it before). Press "Keep all spaces" on its Devices page.
+ * A device that joined by an approved one-time code keeps the account's spaces by itself and opens on
+ * the Timer (F-20). Waits for that; a device that still shows the "Keep all spaces" notice (a space it
+ * has not decided on) gets it pressed.
  */
 export async function keepAllSpaces(page) {
   const button = page.getByRole('button', { name: 'Keep all spaces' });
-  await button.waitFor({ timeout: 30000 });
-  await button.click();
+  const onTimer = () => page.evaluate(() => location.hash.startsWith('#/timer')).catch(() => false);
+  const deadline = Date.now() + 30000;
+  let pressedAt = 0;
+  while (Date.now() < deadline) {
+    if (await onTimer()) return;
+    if (!pressedAt && (await button.isVisible().catch(() => false))) {
+      // The app keeps the spaces by itself a moment after the notice shows, which removes the button mid-click:
+      // a default click then waits out its whole 30 s timeout for a button that is gone. Short timeout, then look again.
+      pressedAt = Date.now();
+      await button.click({ timeout: 2000 }).catch(() => undefined);
+    }
+    // A join that was not approved by a one-time code (the keyless tests) never goes to the Timer; an approved one may show the notice for a moment and still does.
+    if (pressedAt && Date.now() - pressedAt > 4000) return;
+    await new Promise((r) => setTimeout(r, 200));
+  }
+  throw new Error('The joined device neither kept the spaces nor opened the Timer');
 }
 
 /** Start selecting on a list page: the Select button in the page header (it reads Done while selecting). */
@@ -217,6 +232,7 @@ export async function joinByInvite(host, guest, { keep = true, pass = PASS } = {
   await host.getByRole('button', { name: /Make a (new )?one-time code/ }).first().click();
   const code = (await host.locator('[data-invite-code]').innerText()).trim();
   await (await openJoin(guest)).locator('input[aria-label="One-time code"]').fill(code);
+  const before = await guest.evaluate(() => location.hash);
   const loaded = guest.waitForEvent('load', { timeout: 60000 });
   await guest.getByRole('button', { name: 'Join', exact: true }).click();
   await guest.locator('[data-join="compare"] code.compare-code').waitFor({ timeout: 30000 });
@@ -226,5 +242,7 @@ export async function joinByInvite(host, guest, { keep = true, pass = PASS } = {
   await loaded;
   if (keep) await keepAllSpaces(guest);
   await guest.waitForFunction(() => window.__app);
+  // The joined device opens on the Timer (F-20); suites carry on from the page they joined on.
+  if (keep) await guest.evaluate((h) => { location.hash = h; }, before);
   return code;
 }

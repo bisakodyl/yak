@@ -71,6 +71,8 @@ export function DataCard() {
             {allSpaces.map((s) => {
               const chips = shareChips(account, s.id);
               const linkOpen = shareLinks.hosting?.space === s.id && !linkSettled(shareLinks.hosting);
+              // Someone who used the link and waits for an answer: say so here, not only on the space's page.
+              const asking = shareLinks.hosting?.space === s.id ? shareLinks.hosting.requests.filter((r) => r.state === 'waiting') : [];
               return (
                 <tr key={s.id} data-space={s.id}>
                   <th scope="row">
@@ -84,7 +86,12 @@ export function DataCard() {
                           {n}
                         </span>
                       ))}
-                      {linkOpen ? <span class="st-chip" data-chip>link open</span> : null}
+                      {asking.map((r) => (
+                        <span key={r.ask.deviceId} class="st-chip st-chip-ask" data-chip data-share-request>
+                          {r.ask.name ?? 'Another account'} asks to join · <a href={`#/settings/space/${s.id}`}>Review</a>
+                        </span>
+                      ))}
+                      {linkOpen && asking.length === 0 ? <span class="st-chip" data-chip>link open</span> : null}
                     </div>
                   </th>
                   {columns.map((c) => (
