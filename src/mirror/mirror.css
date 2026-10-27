@@ -1,0 +1,16 @@
+/* Mirror view and banner: layout only. Tokens: src/app/theme/tokens.css. */
+
+.mirror-banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  padding: 0.5rem 1rem;
+  border-bottom: 1px solid var(--border);
+  border-left: 4px solid var(--warn);
+  background: var(--surface-2);
+}
+.mirror-banner span { flex: 1 1 16rem; font-weight: var(--weight-semibold); }
+
+.mirror .mirror-status.ok { color: var(--ok); }
+.mirror .card { margin-bottom: 1rem; }

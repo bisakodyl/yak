@@ -1,0 +1,69 @@
+import { STORAGE_PREFIX } from '../constants';
+
+/** One entry of `docs/user/changes.md`: `## <id>: <title>` and its bullets (Markdown). */
+export interface Change {
+  /** The date, for example `2026-10-19`; entries are newest first and ids sort by time. */
+  id: string;
+  title: string;
+  body: string;
+}
+
+const SEEN_KEY = `${STORAGE_PREFIX}-changes-seen`;
+const NOTICE_KEY = `${STORAGE_PREFIX}-alpha-notice`;
+
+export function parseChanges(source: string): Change[] {
+  return source
+    .split(/^##\s+/m)
+    .slice(1)
+    .map((chunk) => {
+      const [head = '', ...rest] = chunk.split('\n');
+      const m = /^(\d{4}-\d{2}-\d{2})\s*:?\s*(.*)$/.exec(head.trim());
+      return m ? { id: m[1] as string, title: (m[2] ?? '').trim(), body: rest.join('\n').trim() } : undefined;
+    })
+    .filter((c): c is Change => c !== undefined)
+    .sort((a, b) => (a.id < b.id ? 1 : -1));
+}
+
+function read(key: string): string | null {
+  try {
+    return localStorage.getItem(key);
+  } catch {
+    return null;
+  }
+}
+
+function write(key: string, value: string): void {
+  try {
+    localStorage.setItem(key, value);
+  } catch {
+    // Without storage the dot and the notice come back on the next start.
+  }
+}
+
+const listeners = new Set<() => void>();
+
+/** The newest entry this device has looked at. A device with no record starts up to date: nothing is new to it. */
+export function changesSeen(newest: string | undefined): string {
+  const stored = read(SEEN_KEY);
+  if (stored !== null) return stored;
+  if (newest) write(SEEN_KEY, newest);
+  return newest ?? '';
+}
+
+export function hasNewChanges(newest: string | undefined): boolean {
+  return !!newest && changesSeen(newest) < newest;
+}
+
+export function markChangesSeen(newest: string | undefined): void {
+  if (!newest || read(SEEN_KEY) === newest) return;
+  write(SEEN_KEY, newest);
+  for (const l of listeners) l();
+}
+
+export function onChangesSeen(fn: () => void): () => void {
+  listeners.add(fn);
+  return () => listeners.delete(fn);
+}
+
+export const alphaNoticeSeen = (): boolean => read(NOTICE_KEY) === 'seen';
+export const markAlphaNoticeSeen = (): void => write(NOTICE_KEY, 'seen');

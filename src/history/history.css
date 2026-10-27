@@ -1,0 +1,14 @@
+.history-controls { gap: var(--space-3); flex-wrap: wrap; align-items: center; }
+.history-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-2); }
+.history-row { display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: baseline; border-bottom: 1px solid var(--border); padding-bottom: var(--space-2); }
+.history-what { min-width: 0; }
+.history-kind { font-size: var(--text-xs); border: 1px solid var(--border); border-radius: var(--radius-pill); padding: 0 0.5rem; color: var(--muted); }
+.history-kind.deleted, .history-kind.missing { color: var(--danger); }
+.history-fields { width: 100%; margin: 0; padding-left: 1.5rem; font-size: var(--text-sm); color: var(--muted); }
+.history-banner { }
+.history-browser { margin: var(--space-3) 0; }
+.history-days, .history-points { list-style: none; margin: 0; padding: 0; }
+.history-points { margin: 0.25rem 0 0.5rem 1rem; }
+.history-day, .history-point { display: flex; gap: 0.5rem; width: 100%; text-align: left; padding: 0.35rem 0.5rem; background: none; border: 0; border-radius: var(--radius-sm); cursor: pointer; }
+.history-day:hover, .history-point:hover, .history-day:focus-visible, .history-point:focus-visible { background: var(--surface-2); }
+.history-day.active, .history-point.active { background: var(--surface-2); box-shadow: inset 3px 0 var(--accent); }

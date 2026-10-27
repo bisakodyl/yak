@@ -1,0 +1,44 @@
+{
+  // Cloudflare Workers: serves the files built into dist/ and runs a small signaling relay.
+  // The build command is `npm run build`; the deploy command is `npx wrangler deploy`.
+  "name": "yak",
+  "main": "worker/index.ts",
+  "compatibility_date": "2026-10-12",
+  "assets": {
+    "directory": "./dist",
+    // Only /signal/* runs Worker code; every other request is answered by the static assets
+    // exactly as before (html_handling still maps /probe to probe.html).
+    "run_worker_first": ["/signal/*"]
+  },
+  // One Durable Object per signaling topic: a stateless relay. SQLite-backed because the free
+  // plan allows only that kind; it stores nothing.
+  "durable_objects": {
+    "bindings": [
+      { "name": "SIGNAL_ROOM", "class_name": "SignalRoom" },
+      // One object counting the requests /signal spends today (see worker/index.ts).
+      { "name": "RELAY_BUDGET", "class_name": "RelayBudget" }
+    ]
+  },
+  // New connections a minute: 60 per address and topic (one account's devices behind one address),
+  // and 120 per address in all (status checks too), the ceiling for a VPN or office shared by many accounts.
+  "ratelimits": [
+    { "name": "CONNECT_LIMIT", "namespace_id": "1001", "simple": { "limit": 60, "period": 60 } },
+    { "name": "ADDRESS_LIMIT", "namespace_id": "1002", "simple": { "limit": 120, "period": 60 } }
+  ],
+  // Operator statistics (#173): uncomment after enabling Workers Analytics Engine for the account, and set the
+  // secrets ADMIN_KEY, CF_ACCOUNT_ID and CF_API_TOKEN (docs/sync.md, "Operator stats").
+  // "analytics_engine_datasets": [{ "binding": "RELAY_STATS", "dataset": "yak_relay" }],
+  // Optional "vars": ALLOWED_ORIGINS ("https://my.example"), RELAY_DAY_REQUESTS ("50000"), RELAY_DAY_BYTES, RELAY ("off" = kill switch)
+  "migrations": [
+    { "tag": "v1", "new_sqlite_classes": ["SignalRoom"] },
+    { "tag": "v2", "new_sqlite_classes": ["RelayBudget"] }
+  ],
+  // Privacy (docs/user/privacy.md, decision S-206): no Workers logs or traces, no log export.
+  "observability": { "enabled": false },
+  // Only the custom domain serves the app: no *.workers.dev URL and no per-branch preview URLs.
+  "workers_dev": false,
+  "preview_urls": false,
+  "routes": [
+    { "pattern": "yak.dynamodal.com", "custom_domain": true }
+  ]
+}

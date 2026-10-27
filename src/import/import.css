@@ -1,0 +1,49 @@
+/* Import view: layout only. Tokens: src/app/theme/tokens.css. */
+
+.imp-drop {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  padding: 1.25rem 1rem;
+  border: 2px dashed var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  cursor: pointer;
+  text-align: center;
+}
+.imp-drop:hover, .imp-drop.dragging { border-color: var(--accent); background: var(--surface-2); }
+.imp-drop:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
+.imp-drop-title { font-weight: var(--weight-semibold); }
+.imp-drop input[type='file'] {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  overflow: hidden;
+}
+
+.imp-preview { margin: 1rem 0; }
+.imp-preview h2 { margin-top: 0; overflow-wrap: anywhere; }
+.imp-settings { display: flex; flex-wrap: wrap; gap: 0.75rem 1.5rem; }
+.imp-settings select { max-width: 100%; }
+
+.imp-counts { display: grid; grid-template-columns: max-content 1fr; gap: 0.2rem 1.25rem; margin: 0.75rem 0; }
+.imp-counts dt { color: var(--muted); }
+.imp-counts dd { margin: 0; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+
+.imp-warnings { color: var(--warn); padding-left: 1.2rem; }
+.imp-errors ul { padding-left: 1.2rem; overflow-wrap: anywhere; }
+
+.imp-progress { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 0.75rem; margin: 0.75rem 0; }
+.imp-progress progress { flex: 1 1 12rem; min-width: 0; }
+
+.imp-done { margin: 1rem 0; border-color: var(--ok); }
+.imp-done h2 { margin-top: 0; }
+.imp-done .row a { padding: 0.4rem 0.2rem; }
+
+@media (max-width: 480px) {
+  .imp-counts { grid-template-columns: 1fr; }
+  .imp-counts dd { margin-bottom: 0.35rem; }
+}

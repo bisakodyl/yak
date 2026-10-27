@@ -1,0 +1,127 @@
+/*
+ * Building blocks (src/app/ui): the look of buttons, pills, fields, popovers, menus and toasts.
+ * Values come from ../theme/tokens.css. Module CSS composes these and adds layout and sizing only.
+ */
+
+/* Focus: one ring for every control. */
+:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 1px; }
+button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, a:focus-visible { outline-offset: 2px; }
+
+/* Button. Plain <button> elements carry no look of their own; <Button> adds `btn` and a level. */
+button { font: inherit; color: inherit; cursor: pointer; background: none; border: 0; padding: 0; border-radius: var(--radius-sm); }
+button:disabled { cursor: default; }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2); min-height: var(--control-h); padding: 0 var(--space-3); border-radius: var(--radius); border: 1px solid var(--border); background: transparent; white-space: nowrap; }
+.btn:hover:not(:disabled) { background: var(--surface-2); }
+.btn:disabled { opacity: 0.5; }
+/* Quiet: no outline or fill until hover; the level for buttons inside rows. */
+.btn.quiet { border-color: transparent; color: var(--muted); }
+.btn.quiet:hover:not(:disabled) { color: var(--text); }
+/* Primary: filled accent, at most one per page. Disabled, it turns grey rather than pale blue. */
+.btn.primary { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
+.btn.primary:hover:not(:disabled) { background: var(--accent); filter: brightness(1.08); }
+.btn.primary:disabled { background: var(--surface-2); color: var(--muted); border-color: var(--border); opacity: 1; }
+.btn.danger { color: var(--danger); }
+.btn.danger.quiet { color: var(--danger); }
+.btn.danger.armed { background: var(--danger); color: var(--on-danger); border-color: var(--danger); }
+.btn.big { min-height: calc(var(--control-h) * 1.3); padding: 0 1.6rem; font-size: var(--text-lg); }
+button.link { background: none; border: none; padding: 0; color: var(--accent); text-decoration: underline; }
+
+/* IconButton: square, one control height. */
+.btn.icon { padding: 0; min-width: var(--control-h); }
+
+/* FileButton: a file input that looks like a button. */
+.file-button { position: relative; cursor: pointer; }
+.file-button input[type='file'] { position: absolute; width: 1px; height: 1px; opacity: 0; overflow: hidden; }
+.file-button:focus-within { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
+
+/* Text controls share the control height, so a row of them lines up. */
+input:not([type='checkbox'], [type='radio'], [type='range'], [type='file'], [type='color']), select { min-height: var(--control-h); }
+
+/* Row actions: shown on hover and keyboard focus, always on touch. Put them in .row-actions inside a .row-host.
+   Shape: play or continue, then a "…" menu; destructive actions live in the menu, with Undo where the model allows. */
+.row-actions { flex: none; display: inline-flex; align-items: center; gap: var(--space-1); }
+@media (hover: hover) {
+  .row-host .row-actions { opacity: 0; transition: opacity var(--duration-fast) var(--ease-out); }
+  .row-host:hover .row-actions, .row-host:focus-within .row-actions, .row-actions:has([aria-expanded='true']) { opacity: 1; }
+}
+
+/* View switch: a row of links, one current. */
+.seg { display: inline-flex; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+.seg a { display: inline-flex; align-items: center; min-height: calc(var(--control-h) - 2px); padding: 0 var(--space-3); color: var(--text); text-decoration: none; }
+.seg a + a { border-left: 1px solid var(--border); }
+.seg a:hover { background: var(--surface-2); }
+.seg a.active { background: var(--accent); color: var(--accent-text); }
+
+/* Pill: small rounded labels (status, tags, badges). */
+.pill { padding: 0 0.45rem; border-radius: var(--radius-pill); font-size: var(--text-xs); }
+.pill-quiet { background: var(--surface-2); }
+.pill-outline { border: 1px solid var(--border); }
+.pill-neutral { background: var(--surface-2); border: 1px solid var(--border); }
+.pill-current { border: 1px solid currentColor; }
+.pill-muted { color: var(--muted); }
+
+/* Field: a label and its control. */
+.field-stacked { display: flex; flex-direction: column; gap: 0.2rem; min-width: 0; }
+.field-inline { display: inline-flex; align-items: center; gap: 0.4rem; }
+.field-inline > .field-label { color: var(--muted); }
+.field-split { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.5rem; }
+
+/* Popover and Menu: float next to the control that opened them. */
+.popover {
+  position: fixed;
+  z-index: var(--z-popover);
+  min-width: 10rem;
+  max-width: min(24rem, calc(100vw - 1rem));
+  max-height: min(24rem, calc(100vh - 1rem));
+  overflow: auto;
+  padding: var(--space-1);
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-float);
+}
+.menu { display: flex; flex-direction: column; }
+.menu-item { display: flex; align-items: center; gap: var(--space-2); width: 100%; min-height: var(--control-h); text-align: left; background: none; border: 0; padding: 0 0.6rem; border-radius: var(--radius-sm); }
+.btn.menu-item { justify-content: flex-start; color: var(--text); white-space: normal; border: 0; }
+.btn.menu-item:hover, .menu-item:focus-visible { background: var(--surface-2); outline: none; }
+
+/* Toast: brief messages at the bottom, optionally with one action such as Undo. */
+.toasts { position: fixed; z-index: var(--z-toast); left: 50%; bottom: var(--space-4); transform: translateX(-50%); display: flex; flex-direction: column; gap: var(--space-2); width: max-content; max-width: calc(100vw - 2rem); }
+.toast { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-2) var(--space-3); background: var(--text); color: var(--bg); border-radius: var(--radius); box-shadow: var(--shadow-float); animation: toast-in var(--duration) var(--ease-out); }
+.toast-text { flex: 1; min-width: 0; }
+.toast .btn { color: inherit; border-color: currentColor; min-height: 1.75rem; }
+.toast .btn:hover:not(:disabled) { background: transparent; opacity: 0.8; }
+@keyframes toast-in { from { opacity: 0; transform: translateY(0.5rem); } }
+
+/* Icons: inline SVGs sized by the text around them. */
+.ui-icon { display: inline-block; vertical-align: -0.125em; flex: none; }
+
+/* Dialog: a close button in the top corner, big enough to tap. */
+.dialog-close { float: right; display: inline-flex; align-items: center; justify-content: center; min-width: 2.5rem; min-height: 2.5rem; margin: -0.25rem -0.25rem 0.25rem 0.5rem; padding: 0; background: transparent; border: 1px solid transparent; border-radius: var(--radius); color: var(--muted); }
+.dialog-close:hover, .dialog-close:focus-visible { background: var(--surface-2); color: var(--text); }
+
+/* Sheet: a modal panel along the bottom of a phone screen; swipe the handle down to close. */
+.sheet { position: fixed; inset: auto 0 0 0; width: 100%; max-width: 100%; max-height: 85dvh; margin: 0; padding: 0; overflow: auto; overscroll-behavior: contain; background: var(--surface); color: var(--text); border: 1px solid var(--border); border-bottom: 0; border-radius: var(--radius) var(--radius) 0 0; box-shadow: var(--shadow-float); animation: sheet-in var(--duration) var(--ease-out); }
+.sheet::backdrop { background: var(--backdrop); }
+.sheet-handle { position: sticky; top: 0; z-index: var(--z-raised); display: flex; justify-content: center; padding: var(--space-2) 0; background: var(--surface); touch-action: none; cursor: grab; }
+.sheet-handle::before { content: ''; width: 2.5rem; height: 0.25rem; border-radius: var(--radius-pill); background: var(--border); }
+.sheet-body { padding: 0 var(--space-3) max(var(--space-3), env(safe-area-inset-bottom)); }
+@keyframes sheet-in { from { transform: translateY(100%); } }
+
+/* Passphrase field: input, "Show" switch, then the live hint on its own line (F-309). */
+.passphrase-input { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 0.25rem 0.6rem; }
+.passphrase-show { display: inline-flex; align-items: center; gap: 0.25rem; color: var(--muted); font-size: 0.9em; }
+.passphrase-hint { flex-basis: 100%; font-size: 0.9em; color: var(--muted); }
+.passphrase-hint.error { color: var(--danger); }
+.passphrase-hint.warn { color: var(--warn); }
+
+/* Status rows under the Your data table: dot, text, link; one line each. */
+.data-line { display: flex; align-items: center; gap: var(--space-2); margin: 0; min-height: var(--control-h); min-width: 0; }
+.line-dot { width: 0.6rem; height: 0.6rem; border-radius: 50%; flex: none; background: var(--muted); }
+.line-dot.ok { background: var(--ok); }
+.line-dot.warn { background: var(--warn); }
+.line-text { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.line-link { flex: none; white-space: nowrap; }
+.line-link a, .line-link .link { display: inline-flex; align-items: center; min-height: var(--control-h); }
+.space-filter { margin-left: auto; }

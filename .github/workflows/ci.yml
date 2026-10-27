@@ -1,0 +1,76 @@
+name: CI
+
+# Free plan: 2,000 private-repo minutes a month, each job rounded up to the minute (decision F38).
+# Every PR and merge gets the cheap checks; the browser suites run only on PRs labelled `e2e`, or by hand (Actions → CI → Run workflow).
+# Sessions run the full `npm run e2e` locally before opening a PR.
+# Out of minutes: scripts/ci-local.sh posts the same checks as commit statuses (F38b, docs/testing.md).
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review, labeled]
+    paths-ignore:
+      - 'docs/**'
+      - '**/*.md'
+      - '.claude/**'
+      - '.github/ISSUE_TEMPLATE/**'
+  push:
+    branches: [main]
+    paths-ignore:
+      - 'docs/**'
+      - '**/*.md'
+      - '.claude/**'
+      - '.github/ISSUE_TEMPLATE/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    name: Checks
+    # Skip drafts, and label events other than adding `e2e`.
+    if: >-
+      github.event_name != 'pull_request' ||
+      (!github.event.pull_request.draft &&
+       (github.event.action != 'labeled' || github.event.label.name == 'e2e'))
+    # Job level, so a skipped label event does not cancel a running check.
+    concurrency:
+      group: ci-${{ github.ref }}-${{ github.event_name == 'push' && github.sha || 'pr' }}
+      # A newer push cancels the older run of a PR; every merge to main keeps its own run.
+      cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      E2E: ${{ github.event_name == 'workflow_dispatch' || contains(github.event.pull_request.labels.*.name, 'e2e') }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run typecheck:worker
+      - run: npm test
+      # The browser suites need the `?test` hooks, which only a test build has (F-219); the e2e job is the only user of this build.
+      - run: npm run build
+        env:
+          YAK_TEST_BUILD: ${{ env.E2E == 'true' && '1' || '' }}
+      - run: npm run check:bundle
+      - if: env.E2E == 'true'
+        id: playwright
+        run: echo "version=$(node -p "require('playwright-core/package.json').version")" >> "$GITHUB_OUTPUT"
+      - if: env.E2E == 'true'
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ steps.playwright.outputs.version }}
+      - if: env.E2E == 'true'
+        run: npx playwright-core install --with-deps chromium
+      - if: env.E2E == 'true'
+        run: npm run e2e -- --no-build
+      - if: failure() && env.E2E == 'true'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: e2e-logs
+          path: e2e-logs
+          retention-days: 7

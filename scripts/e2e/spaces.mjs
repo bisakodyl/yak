@@ -1,0 +1,159 @@
+// End-to-end: which spaces each device keeps. Over the site relay: a device that has just joined keeps
+// nothing, and nothing of any space reaches it until it chooses; choosing only Work gets it Work and no
+// Personal. Another device can untick a space for a device (and the device sees it), what is not kept
+// stays off in both directions while the other space keeps syncing, the choice survives a reload, and
+// keeping a space again catches up. A device can also stop keeping a space itself. Also checks that
+// time entries live in the space's private document.
+//
+//   SITE_RELAY=1 node scripts/serve-dist.mjs 4190 &   # or: npm run e2e spaces
+//   node scripts/e2e/spaces.mjs
+//
+import { BASE, launch, sleep, ok, fail, check, watchPage, until, finish, keepAllSpaces, openJoin, startSyncing, joinByInvite } from './lib.mjs';
+
+const browser = await launch({ fakeCamera: true });
+const mk = async (n) => {
+  const page = await (await browser.newContext({ permissions: ['camera'] })).newPage();
+  watchPage(page, n);
+  await page.goto(BASE + '?test#/devices');
+  return page;
+};
+const st = (p) => p.evaluate(() => window.__app?.state());
+const text = (p, id) => p.evaluate((d) => window.__app.text(d, 't') ?? '', id);
+const spaceDocsOf = async (p) => (await p.evaluate(() => window.__app.docs())).filter((d) => d.startsWith('space/'));
+const setName = async (p, name) => {
+  const input = p.locator('input[aria-label="This device\'s name"]');
+  await input.fill(name);
+  await input.press('Enter');
+  await input.blur();
+};
+const keepsBox = (p, who, space) => p.getByLabel(`${who} keeps ${space}`);
+
+const a = await mk('A');
+const b = await mk('B');
+await startSyncing(a);
+await joinByInvite(a, b);
+(await until(async () => (await st(a)) === 'connected' && (await st(b)) === 'connected', 20000)) >= 0 ? ok('paired') : fail('did not pair');
+const docs = await a.evaluate(() => window.__app.docs());
+docs.includes('space/work/time') && docs.includes('space/personal/time') ? ok('private documents are open') : fail(`documents: ${docs}`);
+await setName(a, 'Laptop');
+await setName(b, 'Bee');
+const toSettings = (p) => p.evaluate(() => { location.hash = '#/settings'; });
+await a.evaluate(() => window.__app.append('space/work', 't', 'work seed '));
+
+// A device that has just joined keeps nothing: no space reaches it until it chooses.
+const c = await mk('C');
+await joinByInvite(a, c, { keep: false });
+await c.locator('.notice', { hasText: 'keeps no spaces yet' }).waitFor({ timeout: 30000 });
+await setName(c, 'Cee');
+await sleep(2500);
+check((await spaceDocsOf(c)).length === 0, 'a device that has just joined holds no space document');
+check((await c.locator('.tabs a').allInnerTexts()).join() === 'Settings', 'it shows only Settings until it keeps a space');
+await toSettings(c);
+await c.locator('table.st-keeps').waitFor();
+check((await keepsBox(c, 'This device', 'Work').isChecked()) === false && (await keepsBox(c, 'This device', 'Personal').isChecked()) === false, 'its spaces are not ticked');
+await keepsBox(c, 'This device', 'Work').check();
+check((await until(async () => (await text(c, 'space/work')).includes('work seed'), 15000)) >= 0, 'choosing Work gets it Work');
+check(!(await spaceDocsOf(c)).some((d) => d === 'space/personal' || d === 'space/personal/time'), 'and no Personal');
+check((await c.evaluate(() => Object.keys(window.__app.spaces()))).join() === 'work', 'only Work is in its space list');
+await keepsBox(c, 'This device', 'Personal').check();
+check((await until(async () => (await spaceDocsOf(c)).some((d) => d === 'space/personal'), 15000)) >= 0, 'ticking Personal later brings Personal');
+await c.close();
+
+await toSettings(a);
+await toSettings(b);
+// A unticks Work for Bee: Work stays on A in both directions while Personal keeps syncing.
+check((await until(async () => (await a.getByLabel('Bee keeps Work').count()) === 1, 15000)) >= 0, "Bee's name and spaces show on A");
+await a.getByLabel('Bee keeps Work').uncheck();
+check((await until(async () => (await keepsBox(b, 'This device', 'Work').isChecked()) === false, 10000)) >= 0, 'Bee sees on its own row that it no longer keeps Work');
+check((await until(async () => !Object.keys(await b.evaluate(() => window.__app.spaces())).includes('work'), 10000)) >= 0, 'Work leaves Bee\'s space list');
+await a.evaluate(() => {
+  window.__app.append('space/work', 't', 'work main ');
+  window.__app.append('space/work/time', 't', 'work private ');
+  window.__app.append('space/personal', 't', 'personal ');
+});
+check((await until(async () => (await text(b, 'space/personal')).includes('personal'), 8000)) >= 0, 'Personal still syncs');
+await sleep(1500);
+check(!(await text(b, 'space/work')).includes('work main') && !(await text(b, 'space/work/time')).includes('work private'), 'Work (shared and private parts) stayed on A');
+await b.evaluate(() => window.__app.append('space/work', 't', 'from b '));
+await sleep(1500);
+check(!(await text(a, 'space/work')).includes('from b'), 'Bee cannot push Work to A');
+
+// The choice survives a reload.
+await a.reload();
+(await until(async () => (await st(a)) === 'connected', 20000)) >= 0 ? ok('reconnected after reload') : fail('no reconnect after reload');
+check((await until(async () => (await a.getByLabel('Bee keeps Work').count()) === 1 && !(await a.getByLabel('Bee keeps Work').isChecked()), 10000)) >= 0, 'the choice is kept after a reload');
+
+// Keeping Work again catches up both ways.
+await a.getByLabel('Bee keeps Work').check();
+check((await until(async () => (await text(b, 'space/work/time')).includes('work private') && (await text(a, 'space/work')).includes('from b'), 15000)) >= 0, 'Work caught up both ways after it was kept again');
+
+// A device can stop keeping a space itself.
+await keepsBox(b, 'This device', 'Personal').uncheck();
+await sleep(500);
+await a.evaluate(() => window.__app.append('space/personal', 't', 'late personal '));
+await sleep(1500);
+check(!(await text(b, 'space/personal')).includes('late personal'), 'a space a device stopped keeping no longer reaches it');
+await keepsBox(b, 'This device', 'Personal').check();
+check((await until(async () => (await text(b, 'space/personal')).includes('late personal'), 15000)) >= 0, 'keeping it again brings what it missed');
+
+// A timer started in the UI writes to the space's private document, not the space document.
+await a.goto(BASE + '?test#/timer');
+await a.waitForFunction(() => window.__app);
+await a.getByRole('button', { name: /^Start/ }).first().click();
+const inPrivate = () => a.evaluate(() => ['space/personal/time', 'space/work/time'].reduce((n, id) => n + Object.keys(window.__app.json(id, 'time_entries')).length, 0));
+(await until(async () => (await inPrivate()) > 0, 5000)) >= 0 ? ok('timer entry is in a private document') : fail('no entry in the private documents');
+const legacy = await a.evaluate(() => Object.keys(window.__app.json('space/personal', 'time_entries')).length + Object.keys(window.__app.json('space/work', 'time_entries')).length);
+legacy === 0 ? ok('nothing written to the shared documents') : fail(`${legacy} entries in the shared documents`);
+
+// Settings: create, archive, unarchive and remove spaces; both devices agree.
+await a.goto(BASE + '?test#/settings');
+await a.waitForFunction(() => window.__app);
+await b.goto(BASE + '?test#/settings');
+await b.waitForFunction(() => window.__app);
+(await until(async () => (await st(a)) === 'connected' && (await st(b)) === 'connected', 20000)) >= 0 ? ok('reconnected for Settings') : fail('no reconnect for Settings');
+const spaceRow = (p, name) => p.locator('table.st-keeps tbody th a', { hasText: new RegExp(`^${name}$`) });
+await a.getByRole('button', { name: '+ New space' }).click();
+await a.getByLabel('New space name').fill('Work');
+await a.getByRole('button', { name: 'Create space' }).click();
+check((await a.locator('.error', { hasText: 'There is already a space called Work' }).count()) === 1, 'a taken name is refused');
+await a.getByLabel('New space name').fill('Side');
+await a.getByRole('button', { name: 'Create space' }).click();
+check((await until(async () => (await spaceRow(a, 'Side').count()) === 1, 5000)) >= 0, 'a new space is a row of the table');
+check((await until(async () => (await spaceRow(b, 'Side').count()) === 1, 15000)) >= 0, 'the other device lists it');
+check((await b.evaluate(() => Object.keys(window.__app.spaces()))).includes('side') === false, 'and it is not in its space list');
+
+await spaceRow(a, 'Side').click();
+await spaceRow(b, 'Side').click();
+await a.getByRole('button', { name: 'Archive Side' }).click();
+check((await until(async () => (await b.getByRole('button', { name: 'Unarchive Side' }).count()) === 1, 15000)) >= 0, 'archiving reaches the other device');
+check(!Object.keys(await a.evaluate(() => window.__app.spaces())).includes('side'), 'an archived space is out of the space list');
+await a.getByRole('button', { name: 'Unarchive Side' }).click();
+check((await until(async () => (await b.getByRole('button', { name: 'Archive Side' }).count()) === 1, 15000)) >= 0, 'unarchiving reaches the other device');
+
+await a.getByRole('button', { name: 'Remove Side', exact: true }).click();
+await a.getByRole('status').filter({ hasText: 'holds 0 notes and 0 time entries' }).waitFor();
+await a.getByRole('button', { name: 'Remove Side from the account' }).click();
+await a.locator('table.st-keeps').waitFor();
+check((await a.evaluate(() => location.hash)) === '#/settings', 'removing a space returns to Settings');
+check((await until(async () => (await spaceRow(a, 'Side').count()) === 0 && (await b.getByText('This space is not in your account.').count()) === 1, 15000)) >= 0, 'removing reaches both devices');
+await toSettings(b);
+await a.getByRole('button', { name: '+ New space' }).click();
+await a.getByLabel('New space name').fill('Side');
+await a.getByRole('button', { name: 'Create space' }).click();
+check((await until(async () => (await spaceRow(a, 'Side').count()) === 1, 5000)) >= 0, 'a removed space frees its name');
+
+// "Not on this device": B has not decided on the new Side; saying no ends the notice and survives a reload.
+await b.goto(BASE + '?test#/settings');
+await b.waitForFunction(() => window.__app);
+const notice = b.locator('.notice', { hasText: 'Side' });
+check((await until(async () => (await notice.count()) === 1, 15000)) >= 0, 'the undecided space is offered in the notice');
+check((await b.getByLabel('This device keeps Side', { exact: true }).evaluate((el) => el.indeterminate)) === true, 'an undecided space shows as indeterminate in the list');
+await b.getByRole('button', { name: 'Not on this device: Side' }).click();
+check((await notice.count()) === 0, 'saying no ends the notice');
+check((await b.getByLabel('This device keeps Side', { exact: true }).evaluate((el) => el.indeterminate)) === false, 'a "no" no longer looks undecided');
+await b.reload();
+await b.waitForFunction(() => window.__app);
+await sleep(1500);
+check((await b.locator('.notice', { hasText: 'Side' }).count()) === 0 && !(await b.getByLabel('This device keeps Side', { exact: true }).isChecked()), 'the no stays after a reload');
+
+await finish(browser);

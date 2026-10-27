@@ -1,0 +1,243 @@
+/* Notes and tasks: layout only. Tokens: src/app/theme/tokens.css; buttons, pills: src/app/ui. */
+
+button.link.unresolved { color: var(--muted); text-decoration-style: dashed; }
+.count { color: var(--muted); font-size: 0.8em; }
+.badge { font-size: var(--text-xs); padding: 0 0.4rem; margin-left: 0.4rem; }
+.badge.warn, .banner.warn { color: var(--warn); }
+.banner { border: 1px solid currentColor; border-radius: var(--radius); padding: 0.4rem 0.6rem; margin: 0.5rem 0; }
+.chips { display: flex; flex-wrap: wrap; gap: 0.3rem; }
+.chip { padding: 0.1rem 0.5rem; border-radius: var(--radius-pill); font-size: var(--text-sm); }
+.only-narrow { display: none; }
+.sr-status { min-height: 1.4em; margin: 0.25rem 0; color: var(--muted); font-size: var(--text-sm); }
+
+/* Notes page: file tree on the left, the note on the right, as in Obsidian. */
+.notes-page { display: grid; grid-template-columns: minmax(14rem, 17rem) minmax(0, 1fr); gap: 0; align-items: start; }
+.notes-page > .page-header { grid-column: 1 / -1; }
+.notes-side { position: sticky; top: 3.5rem; max-height: calc(100vh - 4.5rem); overflow: auto; padding: 0 0.6rem 1rem 0; border-right: 1px solid var(--border); }
+.notes-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 0.15rem; margin: 0 0 0.5rem; }
+.notes-toolbar .notes-search { flex: 1 1 8rem; min-width: 0; margin-bottom: 0.25rem; }
+.notes-toolbar .notes-gear { margin-bottom: 0.25rem; }
+.notes-break { flex-basis: 100%; height: 0; }
+.notes-toolbar .space-select { flex: 1 1 6rem; min-width: 0; }
+.notes-toolbar .page-select { margin-left: auto; min-width: 0; padding-inline: 0.5rem; }
+.notes-toolbar .icon { color: var(--muted); }
+.notes-toolbar button { white-space: nowrap; flex: none; }
+.notes-search { width: 100%; margin-bottom: 0.5rem; }
+.notes-main { min-width: 0; padding: 0 1.5rem; }
+
+/* File tree */
+.tree-root { min-height: 4rem; border-radius: var(--radius-sm); padding-bottom: 2rem; }
+.tree, .tree ul { list-style: none; margin: 0; padding: 0; }
+.tree .tree { padding-left: 0.85rem; margin-left: 0.55rem; border-left: 1px solid var(--border); }
+.tree-row { display: flex; align-items: center; border-radius: var(--radius-sm); }
+.tree-row:hover { background: var(--surface-2); }
+.tree-item { flex: 1; min-width: 0; display: flex; align-items: center; gap: 0.35rem; padding: 0.2rem 0.35rem; background: none; border: none; color: var(--text); text-decoration: none; text-align: left; font: inherit; font-size: 0.93rem; cursor: pointer; }
+.tree-item .ui-icon { flex: none; color: var(--muted); }
+.tree-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tree-caret { display: inline-flex; width: 0.9em; color: var(--muted); }
+.tree-folder { font-weight: var(--weight-medium); }
+.note-row.active { background: color-mix(in srgb, var(--accent) 14%, transparent); }
+.note-row.active .tree-note, .note-row.active .tree-note .ui-icon { color: var(--accent); }
+.tree-more { visibility: hidden; padding: 0.1rem 0.3rem; color: var(--muted); border-color: transparent; background: none; }
+.tree-row:hover .tree-more, .tree-row:focus-within .tree-more, .tree-more[aria-expanded='true'] { visibility: visible; }
+.tree-rename { flex: 1; min-width: 0; }
+.drop-target > .tree-row, .tree-root.drop-target { outline: 2px dashed var(--accent); outline-offset: -2px; background: color-mix(in srgb, var(--accent) 8%, transparent); }
+[draggable='true'] { -webkit-user-drag: element; }
+
+.search-hits { list-style: none; margin: 0; padding: 0; }
+.search-hits a { display: block; padding: 0.35rem 0.4rem; border-radius: var(--radius-sm); color: var(--text); text-decoration: none; }
+.search-hits a:hover, .search-hits a.active { background: var(--surface-2); }
+.hit-title { display: block; font-weight: var(--weight-semibold); }
+.hit-path, .hit-snippet { display: block; color: var(--muted); font-size: var(--text-sm); overflow-wrap: anywhere; }
+.tag-list { margin: 0.75rem 0; }
+
+/* The note: a centred reading column, as with Obsidian's readable line length. */
+.note-pane { max-width: var(--reading-width); margin: 0 auto; }
+.note-top { display: flex; align-items: center; gap: 0.5rem; min-height: 2rem; }
+.note-crumbs { flex: 1; min-width: 0; color: var(--muted); font-size: var(--text-sm); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.crumb-sep { margin: 0 0.35rem; opacity: 0.6; }
+.note-more, .note-act { color: var(--muted); }
+.note-title-row { display: flex; align-items: center; gap: 0.15rem; margin: 0.25rem 0 0.5rem; }
+.note-title-row .note-title { flex: 1; min-width: 0; width: auto; margin: 0; }
+.note-title-row > button, .note-title-row > .menu-wrap { flex: none; }
+.menu-spacer { display: inline-block; width: 1em; }
+.note-title { width: 100%; font-size: 2rem; font-weight: 700; line-height: 1.25; border: none; background: transparent; padding: 0.2rem 0.25rem; margin: 0.25rem 0 0.5rem; color: var(--text); border-radius: var(--radius-sm); }
+.note-title:hover { background: var(--surface-2); }
+.note-title:focus { background: transparent; outline: 2px solid color-mix(in srgb, var(--accent) 45%, transparent); }
+.empty-state { padding: 2rem 0; }
+
+/* Properties: one compact table; the YAML stays hidden in the text (Source mode shows it). */
+.props { margin: 0 0 0.75rem; padding: 0 0.25rem 0.5rem; border-bottom: 1px solid var(--border); font-size: var(--text-sm); }
+.props-head { display: inline-flex; align-items: center; gap: 0.3rem; background: none; border: none; padding: 0.15rem 0; color: var(--muted); font: inherit; font-weight: var(--weight-semibold); cursor: pointer; }
+.props-table { display: grid; gap: 0.1rem; margin-top: 0.25rem; }
+.prop-row { display: grid; grid-template-columns: minmax(6rem, 9rem) minmax(0, 1fr) auto; gap: 0.5rem; align-items: center; min-height: 2rem; border-radius: var(--radius-sm); }
+.prop-row:hover { background: var(--surface-2); }
+.prop-key { color: var(--muted); padding-left: 0.3rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.prop-value { min-width: 0; }
+.prop-input { width: 100%; min-width: 0; border: 1px solid transparent; background: transparent; padding: 0.15rem 0.35rem; color: var(--text); font: inherit; border-radius: var(--radius-xs); }
+.prop-input:hover { border-color: var(--border); }
+.prop-input:focus { border-color: var(--accent); background: var(--surface); }
+.prop-moment { text-align: left; cursor: pointer; }
+.prop-text { display: flex; align-items: center; gap: 0.25rem; }
+.prop-check { width: 1rem; height: 1rem; margin-left: 0.35rem; accent-color: var(--accent); }
+.prop-complex { font-size: var(--text-sm); overflow-wrap: anywhere; color: var(--muted); }
+.prop-remove { visibility: hidden; color: var(--muted); padding: 0.1rem 0.3rem; border-color: transparent; background: none; }
+.prop-row input[type='date'] { width: auto; }
+.prop-row:hover .prop-remove, .prop-row:focus-within .prop-remove { visibility: visible; }
+.prop-chips { display: flex; flex-wrap: wrap; align-items: center; gap: 0.25rem; padding: 0.1rem 0.2rem; }
+.prop-chip { display: inline-flex; align-items: center; gap: 0.1rem; padding: 0 0.15rem 0 0.5rem; border-radius: var(--radius-pill); background: var(--surface-2); border: 1px solid var(--border); line-height: 1.6; }
+.prop-chip-link { background: none; border: none; padding: 0; color: var(--accent); font: inherit; cursor: pointer; }
+.prop-chip-link:hover { text-decoration: underline; }
+.prop-chip-x { display: inline-flex; background: none; border: none; padding: 0.1rem; color: var(--muted); cursor: pointer; border-radius: var(--radius-pill); font-size: var(--text-xs); }
+.prop-chip-x:hover { color: var(--text); background: var(--border); }
+.prop-edit { display: inline-flex; align-items: center; min-height: var(--control-h); padding: 0 var(--space-2); color: var(--accent); font-size: var(--text-sm); }
+.prop-chip-input { flex: 1; min-width: 4rem; border: none; background: transparent; padding: 0.1rem 0.25rem; font: inherit; color: var(--text); }
+.prop-chip-input:focus { outline: none; }
+.prop-new-key { grid-column: 1 / -1; max-width: 16rem; margin-left: 0.3rem; }
+.props-add-link { display: inline-flex; align-items: center; gap: 0.3rem; color: var(--muted); font-size: var(--text-sm); padding: 0.2rem 0.3rem; margin-top: 0.15rem; }
+.prop-open-link { font-size: var(--text-sm); }
+
+/* CodeMirror lives in a shadow root and is themed in editor.ts; only the host is styled here. It has no border at
+   rest; a hover tint and an accent line with a soft background while it has focus show it is active. */
+.note-editor { display: block; min-height: 30vh; padding: 0.5rem 0.25rem; border-radius: var(--radius-sm); transition: background-color 0.12s, box-shadow 0.12s; }
+.note-editor:hover { background: color-mix(in srgb, var(--surface-2) 50%, transparent); }
+.note-editor:focus-within { background: color-mix(in srgb, var(--accent) 6%, transparent); box-shadow: inset 3px 0 0 var(--accent); }
+
+.note-links { margin-top: 1rem; padding-top: 0.5rem; border-top: 1px solid var(--border); font-size: var(--text-sm); }
+.note-links summary { color: var(--muted); font-weight: var(--weight-semibold); cursor: pointer; padding: 0.3rem 0; }
+.note-links ul { margin: 0 0 0.5rem; padding-left: 1.1rem; }
+.move-title { margin: 0 0 0.5rem; font-weight: var(--weight-semibold); }
+.shortcuts-dialog { max-height: 85vh; overflow: auto; }
+.shortcuts-head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 0.25rem; }
+.shortcuts-head .move-title { margin: 0; }
+.shortcuts { width: 100%; border-collapse: collapse; font-size: var(--text-sm); margin-bottom: 0.75rem; }
+.shortcuts td { padding: 0.3rem 0.4rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+.shortcuts td:first-child { white-space: nowrap; width: 1%; }
+.shortcuts kbd { font-family: var(--font-sans); font-size: var(--text-sm); border: 1px solid var(--border); border-radius: var(--radius-xs); padding: 0.05rem 0.35rem; background: var(--surface-2); }
+
+/* Quick switcher */
+.switcher { width: min(36rem, calc(100vw - 2rem)); max-height: 70vh; padding: 0.75rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); color: var(--text); }
+.switcher::backdrop { background: var(--backdrop); }
+.switcher-input { width: 100%; font-size: var(--text-lg); }
+.switcher-list { list-style: none; margin: 0.5rem 0; padding: 0; max-height: 50vh; overflow: auto; }
+.switcher-list li { padding: 0.35rem 0.5rem; border-radius: var(--radius-sm); cursor: pointer; display: flex; justify-content: space-between; gap: 0.75rem; }
+.switcher-list li.active, .switcher-list li:hover { background: var(--surface-2); }
+.switcher-path { color: var(--muted); font-size: var(--text-sm); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* Tasks */
+.quick-add input { flex: 1; min-width: 12rem; }
+
+.task-list { list-style: none; margin: 0; padding: 0; }
+.task-list li { display: flex; align-items: flex-start; gap: 0.6rem; padding: 0.5rem 0.25rem; border-bottom: 1px solid var(--border); }
+.task-list input[type='checkbox'] { margin-top: 0.3rem; width: 1.1rem; height: 1.1rem; }
+.task-list li.done .task-title { text-decoration: line-through; color: var(--muted); }
+.task-body { flex: 1; min-width: 0; display: flex; flex-wrap: wrap; gap: 0.15rem 0.5rem; align-items: baseline; }
+.task-title { color: var(--text); font-weight: var(--weight-semibold); text-decoration: none; }
+.task-title:hover { text-decoration: underline; }
+.task-meta { display: inline-flex; flex-wrap: wrap; gap: 0.5rem; color: var(--muted); font-size: var(--text-sm); }
+.due.overdue { color: var(--danger); font-weight: var(--weight-semibold); }
+.prio-high { color: var(--danger); }
+.prio-low { color: var(--muted); }
+
+.board { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(15rem, 1fr); gap: 0.75rem; overflow-x: auto; padding-bottom: 0.5rem; align-items: start; }
+.board-col { background: var(--surface-2); border: 2px dashed transparent; border-radius: var(--radius); padding: 0.5rem; min-height: 8rem; }
+.board-col.over { border-color: var(--accent); }
+.board-col h2 { font-size: var(--text-lg); margin: 0.1rem 0.25rem 0.5rem; }
+.board-col ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.5rem; }
+.task-card { position: relative; cursor: grab; padding: 0.5rem 0.65rem; display: grid; gap: 0.25rem; }
+.task-card:active { cursor: grabbing; }
+.card-actions { position: absolute; top: 0.2rem; right: 0.2rem; }
+.task-card .task-title { padding-right: 4.5rem; }
+
+.table-filter { flex: 1; min-width: 12rem; }
+.table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); }
+.bases-table th, .bases-table td { white-space: nowrap; }
+.bases-table td { padding: 0.15rem 0.3rem; }
+.bases-table td a { color: var(--accent); }
+.th-sort { background: none; border: none; padding: 0.2rem 0.2rem; color: inherit; font-weight: var(--weight-semibold); }
+.cell { width: 100%; text-align: left; background: none; border: 1px solid transparent; padding: 0.2rem 0.35rem; min-height: 1.9rem; }
+.cell:hover { border-color: var(--border); }
+.placeholder { color: var(--muted); }
+td.editing input { width: 100%; min-width: 8rem; }
+
+@media (max-width: 48rem) {
+  .notes-page { grid-template-columns: minmax(0, 1fr); }
+  .notes-side { position: static; max-height: none; border-right: none; padding-right: 0; }
+  .notes-main { padding: 0; }
+  .note-title { font-size: var(--text-2xl); }
+  .note-act { display: none; }
+  .tree-more, .prop-remove { visibility: visible; }
+  .only-narrow { display: inline-block; margin-bottom: 0.5rem; }
+  .notes-page:not(.has-note) .only-narrow { display: none; }
+  .notes-page.has-note:not(.show-list) .notes-side { display: none; }
+  .notes-page.has-note.show-list .note-pane { display: none; }
+  .prop-row { grid-template-columns: minmax(4.5rem, 7rem) minmax(0, 1fr) auto; }
+  .board { grid-auto-flow: row; grid-auto-columns: auto; }
+  .task-list li { flex-wrap: wrap; }
+}
+
+.tree-new { list-style: none; }
+.tree-new .tree-row { gap: 0.4rem; padding-left: 1.4rem; }
+.tree-new .tree-rename { flex: 1; min-width: 0; }
+
+.note-history { width: min(56rem, calc(100vw - 2rem)); }
+.nh-name { gap: var(--space-2); margin-bottom: var(--space-2); }
+.nh-name input { flex: 1; min-width: 0; }
+.nh-body { display: grid; grid-template-columns: minmax(12rem, 18rem) 1fr; gap: var(--space-3); }
+@media (max-width: 40rem) { .nh-body { grid-template-columns: 1fr; } }
+.nh-list { list-style: none; margin: 0; padding: 0; max-height: 50vh; overflow: auto; }
+.nh-list button { display: flex; flex-direction: column; align-items: flex-start; width: 100%; text-align: left; gap: 0.1rem; background: none; border: 0; border-radius: var(--radius-sm); padding: 0.35rem 0.5rem; }
+.nh-list button.active, .nh-list button:hover { background: var(--surface-2); }
+.nh-when { font-size: var(--text-sm); }
+.nh-badge { font-size: var(--text-xs); }
+.nh-diff pre { margin: 0; max-height: 40vh; overflow: auto; font: var(--font-mono, monospace); font-size: var(--text-sm); white-space: pre-wrap; }
+.nh-added { background: color-mix(in srgb, var(--ok) 18%, transparent); }
+.nh-removed { background: color-mix(in srgb, var(--danger) 18%, transparent); }
+
+.deleted-notes ul { list-style: none; margin: 0.25rem 0; padding: 0; display: flex; flex-direction: column; gap: 0.25rem; }
+.deleted-notes li { display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; }
+.deleted-path { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.notes-space-head { display: flex; align-items: center; gap: 0.35rem; width: 100%; padding: 0.3rem 0.35rem; background: none; border: none; color: var(--text); font: inherit; font-weight: 600; text-align: left; cursor: pointer; }
+.task-space { font-weight: 600; }
+.prop-date { display: flex; flex-wrap: wrap; gap: 0.25rem; }
+.prop-date .prop-input { width: auto; flex: 1 1 9rem; }
+.prop-select { width: auto; max-width: 100%; }
+.prop-choose { max-width: 7.5rem; border: 1px solid var(--border); background: var(--surface); color: var(--text); font: inherit; border-radius: var(--radius-xs); padding: 0.1rem 0.25rem; }
+
+/* Selecting notes and tasks to edit them together */
+.row-check { flex: none; width: 1.25rem; height: 1.25rem; margin: 0 0.25rem; }
+.search-hits li { display: flex; align-items: flex-start; }
+.search-hits li > a { flex: 1; min-width: 0; }
+.tree-row.note-row { padding-left: 0; }
+li.selected > .tree-row, .search-hits li.selected, .task-list li.selected, .task-card.selected, .bases-table tr.selected { background: color-mix(in srgb, var(--accent) 14%, transparent); }
+.bases-table td.sel, .bases-table th.sel { width: 2rem; }
+.notes-side .bulk-bar .row { gap: 0.35rem; }
+
+.bookmarks { margin: 0 0 0.5rem; }
+.bookmarks summary { color: var(--muted); font-weight: var(--weight-semibold); cursor: pointer; padding: 0.2rem 0; }
+.bookmarks ul { list-style: none; margin: 0; padding: 0; }
+.bookmarks a { display: block; padding: 0.2rem 0.4rem; border-radius: var(--radius-xs); color: inherit; text-decoration: none; overflow-wrap: anywhere; }
+.bookmarks a.active { background: var(--surface-2, var(--border)); }
+.outline { list-style: none; padding-left: 0; }
+@media (max-width: 40rem) { .notes-open kbd { display: none; } }
+
+.checklist { font-variant-numeric: tabular-nums; }
+.project-group { margin-block: var(--space-4); }
+.project-group h2 { display: flex; align-items: baseline; gap: var(--space-2); }
+.project-group progress { width: 100%; max-width: 20rem; height: 0.5rem; accent-color: var(--accent); }
+
+.agenda section { margin-block: var(--space-4); }
+.agenda li.future { color: var(--muted); }
+.agenda li { display: flex; align-items: baseline; gap: var(--space-2); }
+
+.archive-bar { align-items: center; gap: var(--space-3); }
+
+/* Formatting bar for phones: shown while the editor has focus, above the on-screen keyboard (NE27). */
+.note-format-bar { display: none; }
+@media (max-width: 48rem) {
+  .note-format-bar { display: flex; position: fixed; left: 0; right: 0; z-index: 20; gap: 0.25rem; padding: 0.25rem; overflow-x: auto; background: var(--surface-2); border-top: 1px solid var(--border, currentColor); }
+  .note-format-bar button { flex: 1 0 auto; min-width: 2.5rem; min-height: 2.5rem; }
+}
+
+/* Attached files: the picker under the editor (the images and chips are styled inside the editor, editor.ts). */
+.note-add-file { margin: 0.25rem 0 1rem; color: var(--muted); font-size: var(--text-sm); }

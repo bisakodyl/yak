@@ -1,0 +1,115 @@
+/*
+ * Design tokens: the only file with raw colours, sizes of type, spacing steps, radii, shadows,
+ * motion and z-layers. Restyling the app means editing this file and, at most, src/app/ui/ui.css.
+ * Module CSS uses these names only (src/app/theme/tokens.test.ts fails on a colour literal elsewhere).
+ *
+ * Light and dark: each colour is written once as light-dark(light, dark). Which half applies follows
+ * `color-scheme`, set below from the system preference, or from data-theme on <html> when the
+ * Settings page has chosen one. No attribute means "follow the system".
+ */
+
+:root {
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    color-scheme: dark;
+  }
+}
+:root[data-theme='light'] {
+  color-scheme: light;
+}
+:root[data-theme='dark'] {
+  color-scheme: dark;
+}
+
+:root {
+  /* Colour: surfaces and text. */
+  --bg: light-dark(#fbfbfa, #141413);
+  --surface: light-dark(#ffffff, #1c1c1a);
+  --surface-2: light-dark(#f2f1ee, #26261f);
+  --text: light-dark(#1d1d1b, #ecebe6);
+  --muted: light-dark(#6b6a66, #a3a29b);
+  --border: light-dark(#e3e1dc, #34332d);
+
+  /* Colour: accent and status. */
+  --accent: light-dark(#2a66d4, #6c9cf0);
+  --accent-text: light-dark(#ffffff, #0d1220);
+  --ok: light-dark(#187636, #4cc06b);
+  --warn: light-dark(#955800, #e0a33e);
+  --info: light-dark(#2f6fde, #6c9cf0);
+  --danger: light-dark(#c4312b, #f06a63);
+
+  /* Colour: roles, so a role can be retuned without touching the status colour it borrows. */
+  --focus-ring: var(--accent);
+  --running: var(--ok);
+  --billable: var(--ok);
+  --on-danger: var(--accent-text);
+  --backdrop: rgb(0 0 0 / 0.35);
+  /* A QR code needs a light background in both themes, or phones cannot read it. */
+  --qr-light: #ffffff;
+
+  /* Type. */
+  --font-sans: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: ui-monospace, monospace;
+  --font-size: 15px;
+  --line-height: 1.5;
+  --text-xs: 0.75rem;
+  --text-sm: 0.85rem;
+  --text-lg: 1.05rem;
+  --text-xl: 1.35rem;
+  --text-2xl: 1.5rem;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+
+  /* Spacing. */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --gap: var(--space-3);
+
+  /* Controls: buttons, selects, inputs and icon buttons share one height; bigger for a finger. */
+  --control-h: 2rem;
+
+  /* Page widths: list pages, settings pages, and the cap on running text. Workspace pages use the full width. */
+  --page-list: 60rem;
+  --page-settings: 44rem;
+  --page-wide: 84rem;
+  --reading-width: 47rem;
+
+  /* Radii. */
+  --radius-xs: 2px;
+  --radius-sm: 6px;
+  --radius: 8px;
+  --radius-pill: 999px;
+
+  /* Shadows: popovers, menus and toasts float above the page. */
+  --shadow-float: 0 6px 24px light-dark(rgb(0 0 0 / 0.14), rgb(0 0 0 / 0.5));
+
+  /* Motion. */
+  --duration-fast: 120ms;
+  --duration: 200ms;
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  /* Z-layers. */
+  --z-raised: 1;
+  --z-sticky: 5;
+  --z-popover: 20;
+  --z-toast: 30;
+}
+
+@media (pointer: coarse) {
+  :root {
+    --control-h: 2.75rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-fast: 0ms;
+    --duration: 0ms;
+  }
+}

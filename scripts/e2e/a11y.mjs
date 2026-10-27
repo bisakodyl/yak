@@ -1,0 +1,111 @@
+// End-to-end accessibility: axe-core (a dev dependency, injected by the test only, never part of the
+// app bundle) runs on every page and on the open dialogs in light and dark; the keyboard reaches
+// the header and the timer; icon buttons have names; the timer and toasts announce through live regions.
+//
+//   npm run e2e a11y
+//
+import { createRequire } from 'node:module';
+import { BASE, launch, check, watchPage, finish } from './lib.mjs';
+
+const axeSource = createRequire(import.meta.url).resolve('axe-core/axe.min.js');
+const browser = await launch();
+
+const PAGES = [
+  '#/timer/list', '#/timer/week', '#/timer/reports', '#/notes', '#/tasks', '#/help', '#/help/report',
+  '#/settings', '#/settings/backup', '#/settings/import', '#/settings/devices', '#/organize',
+  '#/settings/space/PERSONAL', '#/note-settings', '#/help/shortcuts', '#/settings/network',
+];
+
+// The Start/Stop button is named for its action; its ticking clock is not part of the name on purpose.
+async function axe(page, label) {
+  await page.addScriptTag({ path: axeSource });
+  const all = (await page.evaluate(() => window.axe.run(document, { resultTypes: ['violations'] }))).violations;
+  const violations = all
+    .map((v) => (v.id === 'label-content-name-mismatch' ? { ...v, nodes: v.nodes.filter((n) => !n.html.includes('tb-start')) } : v))
+    .filter((v) => v.nodes.length);
+  for (const v of violations) {
+    const nodes = v.nodes.slice(0, 3).map((n) => `${n.target.join(' ')} :: ${n.html.slice(0, 400)} :: ${(n.any[0] ?? n.all[0] ?? n.none[0])?.message ?? ''}`.slice(0, 600));
+    check(false, `${label}: ${v.id} (${v.impact}) ${v.nodes.length}× ${nodes.join(' | ')}`);
+  }
+  check(violations.length === 0, `${label}: no axe violations`);
+}
+
+for (const [scheme, width] of [['light', 1280], ['dark', 1280], ['light', 375], ['dark', 375]]) {
+  const context = await browser.newContext({ viewport: { width, height: 900 }, colorScheme: scheme, bypassCSP: true });
+  const page = await context.newPage();
+  const tag = `${scheme} ${width}px`;
+  watchPage(page, `a11y ${tag}`, { consoleErrors: true });
+  await page.goto(`${BASE}?test#/timer/list`);
+  await page.waitForFunction(() => window.__app);
+  await page.locator('.view').waitFor();
+
+  // Something to show: a finished entry with a project and a tag, a running one, a note and a task.
+  await page.getByLabel('Description', { exact: true }).first().fill('Accessibility check');
+  await page.getByRole('button', { name: 'Start', exact: true }).click();
+  await page.getByRole('button', { name: 'Stop', exact: true }).click();
+  await page.getByLabel('Description', { exact: true }).first().fill('Still running');
+  await page.getByRole('button', { name: 'Start', exact: true }).click();
+  const personal = await page.evaluate(() => window.__app.spaces().personal);
+  for (const hash of PAGES) {
+    await page.evaluate((h) => { location.hash = h; }, hash.replace('PERSONAL', personal));
+    await page.waitForTimeout(400);
+    await axe(page, `${tag} ${hash}`);
+  }
+
+  // Dialogs and pickers.
+  await page.evaluate(() => { location.hash = '#/settings'; });
+  await page.getByRole('button', { name: '+ Share with an account' }).click();
+  await page.locator('dialog[open], dialog.sheet[open]').first().waitFor();
+  await page.waitForTimeout(300);
+  await axe(page, `${tag} share dialog`);
+  await page.keyboard.press('Escape');
+  await page.evaluate(() => { location.hash = '#/timer/list'; });
+  await page.locator('.timer-bar').waitFor();
+  await page.keyboard.press('Alt+p');
+  await page.locator('dialog.palette').waitFor();
+  await axe(page, `${tag} palette`);
+  await page.keyboard.press('Escape');
+  const project = page.getByRole('button', { name: /^Project/ }).first();
+  await project.click();
+  await page.locator('.picker').first().waitFor();
+  await axe(page, `${tag} project picker`);
+  await page.keyboard.press('Escape');
+  await context.close();
+}
+
+// Keyboard and screen reader: the skip link comes first, the header and the timer are reachable
+// by Tab, the toast region is always in the page, and every button and link has a name.
+{
+  const context = await browser.newContext({ viewport: { width: 1280, height: 900 } });
+  const page = await context.newPage();
+  watchPage(page, 'a11y keyboard', { consoleErrors: true });
+  await page.goto(`${BASE}?test#/timer/list`);
+  await page.waitForFunction(() => window.__app);
+  await page.locator('.view').waitFor();
+  await page.keyboard.press('Tab');
+  check((await page.evaluate(() => document.activeElement?.textContent)) === 'Skip to content', 'the first Tab stop is the skip link');
+  await page.keyboard.press('Enter');
+  check(await page.evaluate(() => document.activeElement?.id === 'main'), 'the skip link moves focus to the page');
+  check((await page.evaluate(() => location.hash)) === '#/timer/list', 'and leaves the route alone');
+  check((await page.locator('main h1').count()) >= 1 || (await page.locator('h1').count()) >= 1, 'the page has a level-1 heading');
+  check((await page.locator('.toasts[role="status"][aria-live="polite"]').count()) === 1, 'the toast live region is always present');
+  const seen = new Set();
+  for (let i = 0; i < 40; i++) {
+    await page.keyboard.press('Tab');
+    const d = await page.evaluate(() => {
+      const e = document.activeElement;
+      const r = e?.getBoundingClientRect();
+      return { tag: e?.tagName, name: e?.getAttribute('aria-label') || e?.textContent?.trim() || e?.getAttribute('title') || '', visible: !!r && r.width > 0 && r.height > 0, ring: e ? getComputedStyle(e).outlineStyle !== 'none' || getComputedStyle(e).boxShadow !== 'none' : false };
+    });
+    if (d.tag === 'BODY') break;
+    seen.add(d.name);
+    if (!d.name && d.tag !== 'INPUT' && d.tag !== 'TEXTAREA' && d.tag !== 'SELECT') check(false, `a focus stop has no name (${d.tag})`);
+    if (!d.visible) check(false, `a focus stop is not visible: ${d.name}`);
+    if (!d.ring) check(false, `a focus stop shows no focus ring: ${d.name}`);
+  }
+  check(seen.size >= 10, `Tab reaches the header and the timer (${seen.size} stops)`);
+  check(await page.evaluate(() => [...document.querySelectorAll('button, a[href]')].every((e) => (e.getAttribute('aria-label') || e.textContent || e.getAttribute('title') || e.querySelector('img[alt]:not([alt=""])')).toString().trim())), 'every button and link has a name');
+  await context.close();
+}
+
+await finish(browser);

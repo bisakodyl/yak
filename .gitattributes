@@ -1,0 +1,3 @@
+# Decision tables are append-only: a local merge keeps both sides' new rows instead of conflicting.
+# GitHub's merge button ignores this; merge `main` into the branch locally.
+docs/decisions/*.md merge=union

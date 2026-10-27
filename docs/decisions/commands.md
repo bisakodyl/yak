@@ -1,0 +1,18 @@
+# Commands, shortcuts, today's note and templates
+
+Built 2026-10-17 (#51).
+
+| # | Decision | Why |
+| --- | --- | --- |
+| C1 | Modules register **commands** (`registerCommand` in `src/app/commands.ts`): id, title, default shortcuts, `run({ app })`. Every visible view also gets a "Go to <view>" command | One place for key handling, a palette that lists everything, and no scattered `keydown` handlers |
+| C2 | One handler (`CommandHost`) listens for keys. A key an editor or dialog already handled (`defaultPrevented`) is left alone | Ctrl+K keeps its job as "link" inside a note; Escape and Enter in dialogs are not stolen |
+| C3 | Defaults (owner, 2026-10-17): Alt+S start or stop the timer, Alt+T go to Timer, Ctrl+Shift+D insert today's date, Alt+P command palette; Ctrl+O and Ctrl+P find a note and Ctrl+K stays "insert link" (the owner's choice of 2026-10-16, `notes-editor.md` NE16, which an earlier draft of this PR wrongly overrode) | The "safe set": no Ctrl+S or Ctrl+O style keys that browsers reserve, except the existing quick switcher |
+| C4 | A shortcut must include Ctrl or Alt (or be F1–F12), so typing is never caught. Letters are matched by the physical key, so Alt+S works on any layout | Plain keys and Shift+letter are text |
+| C5 | Rebinding is data: the account document's `shortcuts` map (command id to shortcut; an empty string means none). It syncs to every device; "Reset" deletes the entry. A shortcut another command uses is refused, naming it | No scripts (B12); same sync model as other personal settings |
+| C6 | Today's note is `<folder>/<name>.md` in the space new items go to, with folder `Daily` and name `YYYY-MM-DD` by default. It is made from the template note (`Templates/Daily` by default) when that note exists in the space, else empty with a creation date. Pressing it again opens the same note | Owner answers; Obsidian's Daily notes behaves the same |
+| C7 | Template variables: `{{date}}`, `{{time}}`, `{{title}}`, and `{{date:FORMAT}}` / `{{time:FORMAT}}` with the tokens YYYY YY MM DD HH mm ss ddd dddd (text in `[brackets]` stays). Unknown variables stay as written | Small, predictable, no code |
+| C8 | Insert-date goes to the note being edited through an event on the editor element, so only `NoteEditor` touches CodeMirror and the editor stays out of the main bundle | The editor is loaded on first use |
+| C9 | Known limits: Ctrl+Shift+D is a browser key in some browsers; a page can usually intercept them but this was only tested in Chromium. On a phone there are no shortcuts; the palette button in the header opens the palette (hidden only below 20 rem, C12), and the Notes "Today" button makes today's note | Test in Chrome, Edge and Firefox before trusting a default |
+| C10 | Not built: user scripts (B12), per-note-type templates, a "new note from template" command, rebinding editor keys inside a note | Later, if wanted |
+| C11 | "Search everything" (`search.all`) is Ctrl+Shift+F (Cmd+Shift+F on a Mac), rebindable, also in the palette. Owner, 2026-10-18 (#149). Not checked in Firefox and Edge yet; extensions may take the key | One search for notes, tasks, entries and metadata from any page |
+| C12 | The header palette button shows on phones (it was hidden below 40 rem, so a phone could not open the palette) and hides only below 20 rem, like the Help "?" button (F34). No issue; owner chose keeping the button over a new search button | Phones have no shortcuts, so the button is the way in |

@@ -1,0 +1,139 @@
+// Screenshots of every page with the same seeded data and a frozen clock, for checking that a
+// styling change looks the same (or reviewing one that should not). Runs against dist/ served
+// with the real headers.
+//
+//   npm install --no-save playwright-core && npm run build
+//   node scripts/serve-dist.mjs 4207 &
+//   TARGET=http://127.0.0.1:4207/ node scripts/screens.mjs shoot before/
+//   ... change, rebuild ...
+//   TARGET=http://127.0.0.1:4207/ node scripts/screens.mjs shoot after/
+//   node scripts/screens.mjs compare before/ after/
+//
+// Each shot is taken at 1280, 768 and 375 px, in light and dark. `compare` lists every file whose
+// pixels differ and how many pixels changed.
+//
+import { existsSync, mkdirSync, readdirSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { launch } from './e2e/lib.mjs';
+
+const BASE = process.env.TARGET || 'http://127.0.0.1:4207/';
+const NOW = new Date('2026-03-25T14:30:00Z');
+const iso = (h, m = 0, dayOffset = 0) => new Date(Date.UTC(2026, 2, 25 + dayOffset, h, m)).toISOString();
+const SEED = {
+  clients: [{ ref: 'acme', name: 'Acme' }],
+  projects: [
+    { ref: 'web', name: 'Website', client: 'acme', rate: 100, currency: 'USD', color: '#2f6fde' },
+    { ref: 'audit', name: 'Audit', rate: 80, currency: 'EUR', color: '#1a7f37' },
+    { ref: 'long', name: 'ZX-OPS Q4-0000-TEST-0001 very long sample project code', color: '#8250df' },
+    { ref: 'old', name: 'Old job', active: false, billable: false, color: '#b26a00' },
+  ],
+  entries: [
+    { start: iso(8), stop: iso(10), description: 'Design review', project: 'web', billable: true, tags: ['ui', 'review'] },
+    { start: iso(10, 15), stop: iso(11, 45), description: 'Audit work', project: 'audit', billable: true },
+    { start: iso(12), stop: null, description: 'Running task', project: 'web', tags: ['ops'] },
+    { start: iso(9, 0, -1), stop: iso(12, 30, -1), description: 'Admin', project: 'old', tags: ['ops'] },
+    { start: iso(13, 0, -1), stop: iso(14, 0, -1), description: 'Notes cleanup' },
+    { start: iso(8, 0, -2), stop: iso(9, 0, -2), description: 'Planning', project: 'audit' },
+    { start: iso(7, 0, -1), stop: iso(8, 30, -1), description: 'Long code', project: 'long', billable: true },
+  ],
+};
+
+const SHOTS = [
+  'timer', 'entries', 'projects', 'reports', 'reports/detailed', 'reports/weekly', 'notes', 'notes-open', 'tasks', 'tasks-board',
+  'tasks-table', 'settings/backup', 'settings/devices', 'settings/general', 'settings/spaces', 'note-settings', 'help/shortcuts', 'import', 'timer-editing', 'timer-forced', 'tasks-forced',
+  'organize', 'help', 'help/report',
+];
+
+async function shoot(outDir) {
+  mkdirSync(outDir, { recursive: true });
+  const browser = await launch();
+  for (const scheme of ['light', 'dark']) {
+    const ctx = await browser.newContext({ colorScheme: scheme, viewport: { width: 1280, height: 900 }, reducedMotion: 'reduce' });
+    const page = await ctx.newPage();
+    page.on('pageerror', (e) => console.error('pageerror:', e.message));
+    await page.clock.setFixedTime(NOW);
+    await page.goto(`${BASE}?test#/timer/reports`);
+    await page.waitForFunction(() => window.__reports);
+    await page.evaluate((s) => window.__reports.seed('personal', s), SEED);
+    await page.goto(`${BASE}?test#/notes`);
+    await page.getByRole('toolbar', { name: 'Notes' }).getByRole('button', { name: 'New…', exact: true }).click();
+    await page.getByRole('menuitem', { name: 'New note', exact: true }).click();
+    await page.locator('input[aria-label="Note title"]').waitFor();
+    await page.keyboard.type('Acme');
+    await page.keyboard.press('Enter');
+    await page.waitForTimeout(300);
+    await page.locator('.cm-content').click();
+    await page.keyboard.type('Kickoff with [[Beta]] about #invoices.');
+    await page.goto(`${BASE}?test#/tasks`);
+    for (const t of ['Write report @office due:2026-03-20', 'Call Acme !high', 'Plan sprint']) {
+      await page.locator('input[aria-label="New task"]').fill(t);
+      await page.locator('input[aria-label="New task"]').press('Enter');
+    }
+    await page.waitForTimeout(300);
+    for (const width of [1280, 768, 375]) {
+      await page.setViewportSize({ width, height: width > 400 ? 900 : 812 });
+      for (const shot of SHOTS) {
+        const route = { 'notes-open': 'notes', 'tasks-board': 'tasks/board', 'tasks-table': 'tasks/table', 'timer-editing': 'timer/list', 'timer-forced': 'timer/list', 'tasks-forced': 'tasks', timer: 'timer/list' }[shot] ?? shot;
+        await page.goto(`${BASE}?test#/${route}`);
+        // `-forced` shots set the opposite theme on <html>, as the Settings page does.
+        // Route changes keep the document, so every other shot clears it again.
+        await page.evaluate((t) => (t ? document.documentElement.setAttribute('data-theme', t) : document.documentElement.removeAttribute('data-theme')), shot.endsWith('-forced') ? (scheme === 'light' ? 'dark' : 'light') : null);
+        await page.waitForTimeout(500);
+        if (shot === 'notes-open') {
+          // The note route is #/notes/<uuid>: open the note by clicking it in the tree.
+          await page.locator('a.tree-note', { hasText: /^Acme$/ }).click();
+          await page.locator('.cm-content').waitFor();
+          await page.waitForTimeout(300);
+        }
+        if (shot === 'timer-editing') {
+          const row = page.locator('.te-row .te-line').first();
+          if (await row.count()) await row.click({ position: { x: 4, y: 4 } });
+          await page.waitForTimeout(200);
+        }
+        if (width < 400 && (await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth))) console.log(`sideways scroll: ${shot} at ${width} px (${scheme})`);
+        await page.mouse.move(0, 0);
+        await page.evaluate(() => (document.activeElement instanceof HTMLElement ? document.activeElement.blur() : undefined));
+        await page.screenshot({ path: join(outDir, `${shot.replace(/\//g, '-')}-${width}-${scheme}.png`), fullPage: true, caret: 'hide', animations: 'disabled' });
+      }
+    }
+    await ctx.close();
+  }
+  await browser.close();
+  console.log(`shots in ${outDir}`);
+}
+
+async function compare(a, b) {
+  const browser = await launch();
+  const page = await browser.newPage();
+  let diffs = 0;
+  for (const file of readdirSync(a).filter((f) => f.endsWith('.png')).sort()) {
+    if (!existsSync(join(b, file))) { console.log(`missing: ${file}`); diffs++; continue; }
+    const [x, y] = [a, b].map((d) => `data:image/png;base64,${readFileSync(join(d, file)).toString('base64')}`);
+    const r = await page.evaluate(async ([x, y]) => {
+      const load = (src) => new Promise((res) => { const i = new Image(); i.onload = () => res(i); i.src = src; });
+      const [ia, ib] = await Promise.all([load(x), load(y)]);
+      if (ia.width !== ib.width || ia.height !== ib.height) return `size ${ia.width}x${ia.height} vs ${ib.width}x${ib.height}`;
+      const px = (img) => { const c = new OffscreenCanvas(img.width, img.height); const g = c.getContext('2d'); g.drawImage(img, 0, 0); return g.getImageData(0, 0, img.width, img.height).data; };
+      const [da, db] = [px(ia), px(ib)];
+      let n = 0;
+      const box = [Infinity, Infinity, -1, -1];
+      for (let i = 0; i < da.length; i += 4) {
+        if (da[i] === db[i] && da[i + 1] === db[i + 1] && da[i + 2] === db[i + 2]) continue;
+        n++;
+        const x = (i / 4) % ia.width;
+        const y = Math.floor(i / 4 / ia.width);
+        box[0] = Math.min(box[0], x); box[1] = Math.min(box[1], y); box[2] = Math.max(box[2], x); box[3] = Math.max(box[3], y);
+      }
+      return n ? `${n} pixels in ${box[0]},${box[1]} to ${box[2]},${box[3]}` : 0;
+    }, [x, y]);
+    if (r !== 0) { console.log(`differs: ${file}: ${r}`); diffs++; }
+  }
+  await browser.close();
+  console.log(diffs ? `${diffs} differ` : 'all identical');
+  process.exit(diffs ? 1 : 0);
+}
+
+const [cmd, ...args] = process.argv.slice(2);
+if (cmd === 'shoot') await shoot(args[0]);
+else if (cmd === 'compare') await compare(args[0], args[1]);
+else console.error('usage: screens.mjs shoot <dir> | compare <dirA> <dirB>');

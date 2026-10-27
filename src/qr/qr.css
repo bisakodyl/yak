@@ -1,0 +1,5 @@
+.qr-pair { display: flex; flex-wrap: wrap; gap: var(--gap); align-items: flex-start; margin: 0.5rem 0; }
+.qr-code { width: 12rem; height: 12rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--qr-light); flex: none; }
+.qr-note { flex: 1 1 14rem; margin: 0; }
+.qr-scan { margin: 0.5rem 0; }
+.qr-video { display: block; width: 100%; max-width: 20rem; aspect-ratio: 4 / 3; object-fit: cover; background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius); }

@@ -1,0 +1,13 @@
+/* Update banner: layout only. Tokens: src/app/theme/tokens.css. */
+
+.update-banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  padding: 0.5rem 1rem;
+  border-bottom: 1px solid var(--border);
+  border-left: 4px solid var(--info);
+  background: var(--surface-2);
+}
+.update-banner span { flex: 1 1 12rem; font-weight: var(--weight-semibold); }

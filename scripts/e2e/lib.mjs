@@ -1,0 +1,230 @@
+// Shared helpers for the browser suites in scripts/e2e/ and the screenshot scripts.
+//
+// Environment (set by `npm run e2e`, or by hand to run one suite alone):
+//   TARGET       address of the served build, default http://127.0.0.1:4190/
+//   MOCKPORT     port of the mock ntfy a suite starts, default 8795 (serve-dist.mjs needs it in EXTRA_CONNECT)
+//   CHROME_PATH  Chromium to launch; otherwise the Playwright cache in ~/.cache/ms-playwright is searched
+//   E2E_BROWSER  `webkit` runs the suite in Playwright's WebKit (local only; Chromium is the default and CI's choice)
+//
+import { existsSync, readdirSync } from 'node:fs';
+import { homedir } from 'node:os';
+import { join } from 'node:path';
+import { chromium, webkit } from 'playwright-core';
+import { startMockNtfy } from '../mock-ntfy.mjs';
+
+export const BASE = process.env.TARGET || 'http://127.0.0.1:4190/';
+export const MOCK_PORT = Number(process.env.MOCKPORT || 8795);
+
+/** Flags that give a page a fake camera and accept the permission prompt without a person. */
+export const FAKE_CAMERA_ARGS = ['--use-fake-ui-for-media-stream', '--use-fake-device-for-media-stream'];
+
+export const WEBKIT = process.env.E2E_BROWSER === 'webkit';
+
+export function findChrome() {
+  if (WEBKIT) return undefined; // WebKit comes from Playwright's own install (`npx playwright-core install webkit`)
+  if (process.env.CHROME_PATH) return process.env.CHROME_PATH;
+  const cache = join(homedir(), '.cache', 'ms-playwright');
+  for (const dir of existsSync(cache) ? readdirSync(cache).sort().reverse() : []) {
+    for (const rel of ['chrome-headless-shell-linux64/chrome-headless-shell', 'chrome-linux64/chrome']) {
+      if (existsSync(join(cache, dir, rel))) return join(cache, dir, rel);
+    }
+  }
+  throw new Error('No Chromium found: set CHROME_PATH or run `npx playwright-core install chromium`');
+}
+
+/**
+ * Playwright's WebKit does not fire `load` for a page that reloads itself with `location.reload()`
+ * (the app does, after joining, restoring or resetting). The page does reload, so in WebKit
+ * `waitForEvent('load')` marks the page and waits for a fresh document, which has no mark.
+ */
+function patchWebkit(browser) {
+  const newContext = browser.newContext.bind(browser);
+  browser.newContext = async (options = {}, ...a) => {
+    // WebKit knows no clipboard or camera permission (it rejects them); there is no fake camera either.
+    const context = await newContext({ ...options, permissions: undefined }, ...a);
+    context.grantPermissions = async () => {};
+    const newPage = context.newPage.bind(context);
+    context.newPage = async (...b) => {
+      const page = await newPage(...b);
+      const waitForEvent = page.waitForEvent.bind(page);
+      page.waitForEvent = (event, options) => {
+        if (event !== 'load') return waitForEvent(event, options);
+        return page.evaluate(() => { window.__beforeReload = true; }).then(() => page.waitForFunction(() => !window.__beforeReload, null, { timeout: options?.timeout ?? 30000 }));
+      };
+      return page;
+    };
+    return context;
+  };
+  return browser;
+}
+
+/** Launches Chromium (or WebKit with E2E_BROWSER=webkit); `fakeCamera` adds the fake-camera flags (Chromium only). */
+export function launch({ fakeCamera = false, args = [] } = {}) {
+  if (WEBKIT) return webkit.launch().then(patchWebkit);
+  return chromium.launch({ executablePath: findChrome(), args: [...(fakeCamera ? FAKE_CAMERA_ARGS : []), ...args] });
+}
+
+/** Starts the mock ntfy mailbox on MOCKPORT; `.url` is what a suite types into the Connection server field. */
+export const startMock = () => startMockNtfy({ port: MOCK_PORT });
+
+export const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+let failures = 0;
+export const failureCount = () => failures;
+export const ok = (m) => console.log('ok  :', m);
+export const fail = (m) => {
+  failures++;
+  console.error('FAIL:', m);
+};
+export const check = (cond, m) => (cond ? ok(m) : fail(m));
+
+/**
+ * Makes a page error or a Content-Security-Policy violation fail the run.
+ * `consoleErrors` also fails on any console error; `ignore(text)` skips messages that are expected.
+ */
+export function watchPage(page, name, { consoleErrors = false, ignore } = {}) {
+  page.on('pageerror', (e) => fail(`${name} pageerror: ${e.message}`));
+  page.on('console', (m) => {
+    const text = m.text();
+    if (ignore?.(text)) return;
+    // WebKit reports two style-src-attr violations at start-up (no inline style in the DOM, pages render
+    // styled; docs/decisions/app.md F-202). Chromium reports none, so only WebKit skips them.
+    if (WEBKIT && /^Refused to apply a stylesheet because its hash/.test(text)) return;
+    if (/Content Security Policy|Refused to/i.test(text)) fail(`${name} CSP: ${text.slice(0, 200)}`);
+    else if (consoleErrors && m.type() === 'error') fail(`${name} console error: ${text.slice(0, 200)}`);
+  });
+}
+
+/** A new isolated profile (own IndexedDB and localStorage) with its page watched. */
+export async function newProfile(browser, name, contextOptions = {}, watchOptions = {}) {
+  const context = await browser.newContext(contextOptions);
+  const page = await context.newPage();
+  watchPage(page, name, watchOptions);
+  return page;
+}
+
+/** Polls `fn` until it is truthy (a throw counts as not yet). Returns the milliseconds waited, or -1 on timeout. */
+export async function until(fn, ms = 5000, every = 100) {
+  const t0 = Date.now();
+  while (Date.now() - t0 < ms) {
+    try {
+      // A call that never returns (a page evaluating while it navigates) must not outlive the deadline.
+      const left = Math.max(1, ms - (Date.now() - t0));
+      if (await Promise.race([fn(), sleep(left).then(() => false)])) return Date.now() - t0;
+    } catch {
+      // not ready yet, for example while the page reloads
+    }
+    await sleep(every);
+  }
+  return -1;
+}
+
+/** Like `until`, but resolves to true or false. */
+export async function poll(fn, ms = 5000, every = 100) {
+  return (await until(fn, ms, every)) >= 0;
+}
+
+/** Closes what was opened (browsers, mock servers), prints the verdict and ends the process. */
+export async function finish(...closables) {
+  for (const c of closables) await c?.close?.();
+  console.log(failures ? `${failures} FAILED` : 'ALL PASSED');
+  process.exit(failures ? 1 : 0);
+}
+
+/**
+ * A device that has just joined an account keeps no spaces until they are chosen (nothing is sent to
+ * it before). Press "Keep all spaces" on its Devices page.
+ */
+export async function keepAllSpaces(page) {
+  const button = page.getByRole('button', { name: 'Keep all spaces' });
+  await button.waitFor({ timeout: 30000 });
+  await button.click();
+}
+
+/** Start selecting on a list page: the Select button in the page header (it reads Done while selecting). */
+export async function startSelecting(page) {
+  await page.getByRole('button', { name: 'Select', exact: true }).click();
+}
+
+/** Pick an item from a Notes sidebar menu ("New…" or "Notes menu"). */
+export async function notesMenu(page, label, item) {
+  await page.getByRole('toolbar', { name: 'Notes' }).getByRole('button', { name: label, exact: true }).click();
+  await page.getByRole('menuitem', { name: item, exact: true }).click();
+}
+
+/** A new note from the Notes sidebar's "New…" menu. */
+export const newNote = (page) => notesMenu(page, 'New…', 'New note');
+
+/**
+ * Opens what hides the join form and the connection server field: on the Welcome screen the "Already use Yak?" line,
+ * on Devices the "Advanced" part. Returns the page. Safe elsewhere: it waits briefly and does nothing when neither shows.
+ */
+export async function openJoin(page) {
+  await page.locator('details.welcome-more, details.advanced, input[aria-label="One-time code"]').first().waitFor({ timeout: 5000 }).catch(() => {});
+  const closed = page.locator('details.welcome-more:not([open]) > summary, details.advanced:not([open]) > summary');
+  if (await closed.count()) await closed.first().click();
+  return page;
+}
+
+/** The passphrase the e2e scripts use (28 characters or more, so no warning). */
+export const PASS = 'e2e passphrase for tests only';
+
+/**
+ * Completes the passphrase sheet (F-324) that is open on `page`: creates the passphrase (typing its own, so a
+ * suite knows it) or enters it, then presses the sheet's button, which runs the action that asked.
+ * Resolves false when no sheet shows within `wait` ms.
+ */
+export async function fillSheet(page, pass = PASS, wait = 10000) {
+  const sheet = page.locator('[data-passphrase-sheet]');
+  if (!(await sheet.first().waitFor({ timeout: wait }).then(() => true, () => false))) return false;
+  const kind = await sheet.first().getAttribute('data-passphrase-sheet');
+  if (kind === 'create') {
+    const own = sheet.getByRole('button', { name: 'Type my own' });
+    if (await own.count()) await own.click();
+    await sheet.locator('input[aria-label="New passphrase"]').fill(pass);
+    await sheet.locator('input[aria-label="Repeat the passphrase"]').fill(pass);
+    await sheet.getByLabel("I've written it down").check();
+    await sheet.getByRole('button', { name: /^Create and / }).click();
+  } else if (kind === 'enter') {
+    await sheet.locator('input[aria-label="Passphrase"]').fill(pass);
+    await sheet.getByRole('button', { name: /^Unlock and / }).click();
+  } else {
+    await sheet.getByRole('button').filter({ hasNotText: /^(Cancel|Close)$/ }).last().click();
+  }
+  await sheet.first().waitFor({ state: 'detached', timeout: 30000 });
+  return true;
+}
+
+/**
+ * "Start syncing my devices" on the Devices page: the passphrase sheet creates the passphrase (#311, F-324).
+ * Presses the button, completes the sheet, waits until pairing is up.
+ */
+export async function startSyncing(page, pass = PASS) {
+  await page.getByRole('button', { name: 'Start syncing my devices' }).click();
+  await fillSheet(page, pass);
+  await page.getByRole('button', { name: 'Make a one-time code' }).waitFor({ timeout: 30000 });
+}
+
+/** Completes the passphrase sheet if the last click opened it (the unlock lasts 5 minutes after its last use). */
+export const unlockIfAsked = (page, pass = PASS, wait = 3000) => fillSheet(page, pass, wait);
+
+/**
+ * Add `guest` to `host`'s account with a one-time code: host makes it, guest enters it, both screens
+ * show the same code, host approves, guest confirms and reloads (#257). `keep` presses "Keep all spaces" on the guest.
+ * Returns the code.
+ */
+export async function joinByInvite(host, guest, { keep = true, pass = PASS } = {}) {
+  await host.getByRole('button', { name: /Make a (new )?one-time code/ }).first().click();
+  const code = (await host.locator('[data-invite-code]').innerText()).trim();
+  await (await openJoin(guest)).locator('input[aria-label="One-time code"]').fill(code);
+  const loaded = guest.waitForEvent('load', { timeout: 60000 });
+  await guest.getByRole('button', { name: 'Join', exact: true }).click();
+  await guest.locator('[data-join="compare"] code.compare-code').waitFor({ timeout: 30000 });
+  await host.locator('.invite-requests').getByRole('button', { name: 'Approve' }).click();
+  await unlockIfAsked(host, pass);
+  await guest.getByRole('button', { name: 'The codes match' }).click();
+  await loaded;
+  if (keep) await keepAllSpaces(guest);
+  await guest.waitForFunction(() => window.__app);
+  return code;
+}

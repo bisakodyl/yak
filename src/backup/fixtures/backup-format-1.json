@@ -1,0 +1,312 @@
+{
+ "format": "backup-bundle",
+ "bundle_version": 1,
+ "manifest": {
+  "format": "backup",
+  "format_version": 1,
+  "app": "Yak",
+  "name": "2026-10-15T00-00-00-000Z_f1f1f1f1",
+  "created_at": "2026-10-15T00:00:00.000Z",
+  "device_id": "f1f1f1f1-0000-4000-8000-000000000000",
+  "reason": "fixture",
+  "partition": {
+   "scheme": "monthly",
+   "field": "start",
+   "timezone": "UTC"
+  },
+  "documents": [
+   {
+    "id": "space/personal",
+    "folder": "docs/space~personal",
+    "update": "docs/space~personal/update.ybin",
+    "state_vector": "docs/space~personal/state-vector.ybin",
+    "state_vector_base64": "Adu43NgH9gE=",
+    "counts": {
+     "time_entries": {
+      "total": 4,
+      "deleted": 1
+     },
+     "projects": {
+      "total": 2,
+      "deleted": 1
+     },
+     "clients": {
+      "total": 1,
+      "deleted": 0
+     },
+     "tags": {
+      "total": 1,
+      "deleted": 0
+     },
+     "notes": {
+      "total": 3,
+      "deleted": 1
+     }
+    },
+    "exports": [
+     "docs/space~personal/time_entries/2026-08.jsonl",
+     "docs/space~personal/time_entries/2026-09.jsonl",
+     "docs/space~personal/time_entries/2026-10.jsonl",
+     "docs/space~personal/projects.json",
+     "docs/space~personal/clients.json",
+     "docs/space~personal/tags.json",
+     "docs/space~personal/notes/Projects/Acme.md",
+     "docs/space~personal/notes/projects/ACME (8691001a).md",
+     "docs/space~personal/notes.json",
+     "docs/space~personal/settings.json",
+     "docs/space~personal/meta.json"
+    ]
+   },
+   {
+    "id": "space/work",
+    "folder": "docs/space~work",
+    "update": "docs/space~work/update.ybin",
+    "state_vector": "docs/space~work/state-vector.ybin",
+    "state_vector_base64": "AdH07scJgAI=",
+    "counts": {
+     "time_entries": {
+      "total": 4,
+      "deleted": 1
+     },
+     "projects": {
+      "total": 2,
+      "deleted": 1
+     },
+     "clients": {
+      "total": 1,
+      "deleted": 0
+     },
+     "tags": {
+      "total": 1,
+      "deleted": 0
+     },
+     "notes": {
+      "total": 3,
+      "deleted": 1
+     }
+    },
+    "exports": [
+     "docs/space~work/time_entries/2026-08.jsonl",
+     "docs/space~work/time_entries/2026-09.jsonl",
+     "docs/space~work/time_entries/2026-10.jsonl",
+     "docs/space~work/projects.json",
+     "docs/space~work/clients.json",
+     "docs/space~work/tags.json",
+     "docs/space~work/notes/Projects/Acme.md",
+     "docs/space~work/notes/projects/ACME (66aa464d).md",
+     "docs/space~work/notes.json",
+     "docs/space~work/settings.json",
+     "docs/space~work/meta.json"
+    ]
+   }
+  ],
+  "files": {
+   "docs/space~personal/clients.json": {
+    "sha256": "78bad4a33c6579ba4fbd758cf80b845e3f315ecc20f0366007b9aa84fc455376",
+    "bytes": 228
+   },
+   "docs/space~personal/meta.json": {
+    "sha256": "e1f40c4ade53537e9597ee11339cb82977c0e67d2003a50e7c6b94c642096e7d",
+    "bytes": 70
+   },
+   "docs/space~personal/notes.json": {
+    "sha256": "bf348c5a8205e527f9134b38e15c396df038aac0ee22e5b9d96ad75bbb9b79aa",
+    "bytes": 715
+   },
+   "docs/space~personal/notes/Projects/Acme.md": {
+    "sha256": "43b43b6564e20bce52a48c8cf54a6f54e6b74696b8ff681971f14612748a6def",
+    "bytes": 72
+   },
+   "docs/space~personal/notes/projects/ACME (8691001a).md": {
+    "sha256": "0baf727a2e3969b4088aff89b64121b07427a44f87b1c25d2db269ef4a31f2b8",
+    "bytes": 23
+   },
+   "docs/space~personal/projects.json": {
+    "sha256": "6ab4bd96d3d5e5f13082da6d4b6287409ef8db6a18da1ccb382c625f9dda809e",
+    "bytes": 691
+   },
+   "docs/space~personal/settings.json": {
+    "sha256": "677818ed61a106e709a6b2ed0f8173157bb847d71c22bacfbc5aa23ebd0c017e",
+    "bytes": 29
+   },
+   "docs/space~personal/state-vector.ybin": {
+    "sha256": "07063eedcacabd45cba693a3c16c878759b7629159f8e072d85c4c222a0532b7",
+    "bytes": 8
+   },
+   "docs/space~personal/tags.json": {
+    "sha256": "ec95f6eaa906321f257be492569483e6f4d4d23cbd80421c8c66b91ca4f382ee",
+    "bytes": 154
+   },
+   "docs/space~personal/time_entries/2026-08.jsonl": {
+    "sha256": "65eb13a2e7622bbfb23fa8065142c272d2e8ef6b660d207ab6d82304d492e504",
+    "bytes": 393
+   },
+   "docs/space~personal/time_entries/2026-09.jsonl": {
+    "sha256": "e95ee8a09be69a6de6fdb3105b9cb18c8ba90662d14dcbc54527709ec4c868c4",
+    "bytes": 347
+   },
+   "docs/space~personal/time_entries/2026-10.jsonl": {
+    "sha256": "16d05c1b57eecd589a13672c95dcce557cb62a67a386d136192d5d833ead8695",
+    "bytes": 670
+   },
+   "docs/space~personal/update.ybin": {
+    "sha256": "ecd0d3956ebf7db3912523df1498b5130c0ac333ba19f865ea5710301931333c",
+    "bytes": 3608
+   },
+   "docs/space~work/clients.json": {
+    "sha256": "59affa2f31f288b7352cc8d63617ece323bd5cb002b593a39ac2b0cb6c149b69",
+    "bytes": 233
+   },
+   "docs/space~work/meta.json": {
+    "sha256": "1389f787ec857d68b5632fa70ff7edb9c27ebfbd33afdb1b1c0aff8ec8fe420d",
+    "bytes": 70
+   },
+   "docs/space~work/notes.json": {
+    "sha256": "3dae986aa72fb7cc1aa5f4db5272bc63e4000a291c11566932d20ae52e93a9a6",
+    "bytes": 715
+   },
+   "docs/space~work/notes/Projects/Acme.md": {
+    "sha256": "5936134dbd4c2518a2c4360606c776e0a2d4a6ac9b9c6b497debac056047ed6e",
+    "bytes": 77
+   },
+   "docs/space~work/notes/projects/ACME (66aa464d).md": {
+    "sha256": "0baf727a2e3969b4088aff89b64121b07427a44f87b1c25d2db269ef4a31f2b8",
+    "bytes": 23
+   },
+   "docs/space~work/projects.json": {
+    "sha256": "cbf04301aa697863e49af112207118f8cc3fa1d295f497f4f7b07508961308e7",
+    "bytes": 696
+   },
+   "docs/space~work/settings.json": {
+    "sha256": "677818ed61a106e709a6b2ed0f8173157bb847d71c22bacfbc5aa23ebd0c017e",
+    "bytes": 29
+   },
+   "docs/space~work/state-vector.ybin": {
+    "sha256": "7fbf43a93a02a5d73d097d269269c3a06cdd395e417a6a812d619fabae4322c1",
+    "bytes": 8
+   },
+   "docs/space~work/tags.json": {
+    "sha256": "dd5e27fef21c55238c07c6e645c1ed7912b34afa3ca2e0bd0f5348bbd0c9e9fc",
+    "bytes": 154
+   },
+   "docs/space~work/time_entries/2026-08.jsonl": {
+    "sha256": "1c6481e7598d1e139d6fdf7e24a728599fdb13413921448feff79365eb53eb44",
+    "bytes": 398
+   },
+   "docs/space~work/time_entries/2026-09.jsonl": {
+    "sha256": "e392c26522c7eae9cfb6f8345658de0397a13b2b80af9633975e1a54ffdab247",
+    "bytes": 352
+   },
+   "docs/space~work/time_entries/2026-10.jsonl": {
+    "sha256": "63493bfcb640d79a5269694410992ba43ca06962f6435bf15be78f2e16034177",
+    "bytes": 680
+   },
+   "docs/space~work/update.ybin": {
+    "sha256": "cb5138e917fe04a2c810a0f4fb16d9e0f70942acfa85cf47d08635ab89845582",
+    "bytes": 3648
+   }
+  },
+  "counts": {
+   "time_entries": {
+    "total": 8,
+    "deleted": 2
+   },
+   "projects": {
+    "total": 4,
+    "deleted": 2
+   },
+   "clients": {
+    "total": 2,
+    "deleted": 0
+   },
+   "tags": {
+    "total": 2,
+    "deleted": 0
+   },
+   "notes": {
+    "total": 6,
+    "deleted": 2
+   }
+  }
+ },
+ "files": {
+  "docs/space~personal/update.ybin": {
+   "base64": "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"
+  },
+  "docs/space~personal/state-vector.ybin": {
+   "base64": "Adu43NgH9gE="
+  },
+  "docs/space~personal/time_entries/2026-08.jsonl": {
+   "text": "{\"id\":\"73982bd8-12dc-4168-8478-59640baacf54\",\"start\":\"2026-08-31T22:00:00.000Z\",\"stop\":\"2026-08-31T23:30:00.000Z\",\"duration\":5400,\"description\":\"Fixture late August\",\"project_id\":\"da7ac094-cb2d-4944-9c00-5537cd0d5734\",\"task_id\":null,\"tags\":[\"deep-work\"],\"billable\":true,\"device_id\":\"test-device\",\"created_at\":\"2026-08-31T22:00:00.000Z\",\"updated_at\":\"2026-08-31T22:00:00.000Z\",\"deleted\":false}\n"
+  },
+  "docs/space~personal/time_entries/2026-09.jsonl": {
+   "text": "{\"id\":\"42ce472c-227e-4778-8d2b-73aeb21db070\",\"start\":\"2026-09-10T09:00:00.000Z\",\"stop\":\"2026-09-10T10:15:00.000Z\",\"duration\":4500,\"description\":\"Fixture September\",\"project_id\":null,\"task_id\":null,\"tags\":[],\"billable\":false,\"device_id\":\"test-device\",\"created_at\":\"2026-09-10T09:00:00.000Z\",\"updated_at\":\"2026-09-10T09:00:00.000Z\",\"deleted\":false}\n"
+  },
+  "docs/space~personal/time_entries/2026-10.jsonl": {
+   "text": "{\"id\":\"e5d4feb3-30d5-4816-b3c0-67c1635c7d00\",\"start\":\"2026-10-01T09:00:00.000Z\",\"stop\":\"2026-10-01T09:45:00.000Z\",\"duration\":2700,\"description\":\"Fixture deleted entry\",\"project_id\":null,\"task_id\":null,\"tags\":[],\"billable\":false,\"device_id\":\"test-device\",\"created_at\":\"2026-10-01T09:00:00.000Z\",\"updated_at\":\"2026-10-16T03:02:53.716Z\",\"deleted\":true}\n{\"id\":\"1e7927ad-c700-464b-8e06-348b05867c33\",\"start\":\"2026-10-15T08:00:00.000Z\",\"stop\":null,\"duration\":0,\"description\":\"Fixture running\",\"project_id\":null,\"task_id\":null,\"tags\":[],\"billable\":false,\"device_id\":\"test-device\",\"created_at\":\"2026-10-15T08:00:00.000Z\",\"updated_at\":\"2026-10-15T08:00:00.000Z\",\"deleted\":false}\n"
+  },
+  "docs/space~personal/projects.json": {
+   "text": "[\n  {\n    \"id\": \"c3383557-8cf7-4eba-a499-cd82614471d3\",\n    \"name\": \"Old\",\n    \"client_id\": null,\n    \"color\": \"#000000\",\n    \"billable\": false,\n    \"rate\": null,\n    \"currency\": \"USD\",\n    \"active\": false,\n    \"created_at\": \"2026-07-01T00:00:00.000Z\",\n    \"updated_at\": \"2026-10-16T03:02:53.715Z\",\n    \"deleted\": true\n  },\n  {\n    \"id\": \"da7ac094-cb2d-4944-9c00-5537cd0d5734\",\n    \"name\": \"Fixture project\",\n    \"client_id\": \"05115032-f761-4a82-829d-81cedca24590\",\n    \"color\": \"#2f6fde\",\n    \"billable\": true,\n    \"rate\": 100,\n    \"currency\": \"USD\",\n    \"active\": true,\n    \"created_at\": \"2026-08-01T00:00:00.000Z\",\n    \"updated_at\": \"2026-08-01T00:00:00.000Z\",\n    \"deleted\": false\n  }\n]\n"
+  },
+  "docs/space~personal/clients.json": {
+   "text": "[\n  {\n    \"id\": \"05115032-f761-4a82-829d-81cedca24590\",\n    \"name\": \"Fixture client\",\n    \"archived\": false,\n    \"created_at\": \"2026-08-01T00:00:00.000Z\",\n    \"updated_at\": \"2026-08-01T00:00:00.000Z\",\n    \"deleted\": false\n  }\n]\n"
+  },
+  "docs/space~personal/tags.json": {
+   "text": "[\n  {\n    \"id\": \"a8e4ffff-9bc0-4ed0-8dde-b2a7d58d350b\",\n    \"name\": \"deep-work\",\n    \"created_at\": \"2026-08-01T00:00:00.000Z\",\n    \"deleted\": false\n  }\n]\n"
+  },
+  "docs/space~personal/notes/Projects/Acme.md": {
+   "text": "---\ntags: [task]\nstatus: open\n---\n# Fixture note\n\nSome *Markdown* text.\n"
+  },
+  "docs/space~personal/notes/projects/ACME (8691001a).md": {
+   "text": "Same path, other case.\n"
+  },
+  "docs/space~personal/notes.json": {
+   "text": "[\n  {\n    \"id\": \"46d31be4-a42b-4efe-8a53-975c116f4e03\",\n    \"path\": \"Projects/Acme.md\",\n    \"created_at\": \"2026-09-01T08:00:00.000Z\",\n    \"updated_at\": \"2026-09-01T08:00:00.000Z\",\n    \"deleted\": false,\n    \"file\": \"notes/Projects/Acme.md\"\n  },\n  {\n    \"id\": \"ae4d10e2-b2cf-46d2-9ed6-c371d25ddc7a\",\n    \"path\": \"Trash/Old.md\",\n    \"created_at\": \"2026-09-01T08:00:00.000Z\",\n    \"updated_at\": \"2026-10-16T03:02:53.717Z\",\n    \"deleted\": true,\n    \"file\": null\n  },\n  {\n    \"id\": \"8691001a-2f7c-4d2c-a130-d0d34d6efc8b\",\n    \"path\": \"projects/ACME.md\",\n    \"created_at\": \"2026-09-01T08:00:00.000Z\",\n    \"updated_at\": \"2026-09-01T08:00:00.000Z\",\n    \"deleted\": false,\n    \"file\": \"notes/projects/ACME (8691001a).md\"\n  }\n]\n"
+  },
+  "docs/space~personal/settings.json": {
+   "text": "{\n  \"week_start\": \"monday\"\n}\n"
+  },
+  "docs/space~personal/meta.json": {
+   "text": "{\n  \"schema_version\": 1,\n  \"created_at\": \"2026-10-16T03:02:53.713Z\"\n}\n"
+  },
+  "docs/space~work/update.ybin": {
+   "base64": "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"
+  },
+  "docs/space~work/state-vector.ybin": {
+   "base64": "AdH07scJgAI="
+  },
+  "docs/space~work/time_entries/2026-08.jsonl": {
+   "text": "{\"id\":\"6713d641-f2da-4e14-b57c-a3c8500a5087\",\"start\":\"2026-08-31T22:00:00.000Z\",\"stop\":\"2026-08-31T23:30:00.000Z\",\"duration\":5400,\"description\":\"Fixture work late August\",\"project_id\":\"d9b25b06-e3bf-46f2-b90a-16f909b01699\",\"task_id\":null,\"tags\":[\"deep-work\"],\"billable\":true,\"device_id\":\"test-device\",\"created_at\":\"2026-08-31T22:00:00.000Z\",\"updated_at\":\"2026-08-31T22:00:00.000Z\",\"deleted\":false}\n"
+  },
+  "docs/space~work/time_entries/2026-09.jsonl": {
+   "text": "{\"id\":\"ed3adeb7-87b9-4573-975f-7752b8670a06\",\"start\":\"2026-09-10T09:00:00.000Z\",\"stop\":\"2026-09-10T10:15:00.000Z\",\"duration\":4500,\"description\":\"Fixture work September\",\"project_id\":null,\"task_id\":null,\"tags\":[],\"billable\":false,\"device_id\":\"test-device\",\"created_at\":\"2026-09-10T09:00:00.000Z\",\"updated_at\":\"2026-09-10T09:00:00.000Z\",\"deleted\":false}\n"
+  },
+  "docs/space~work/time_entries/2026-10.jsonl": {
+   "text": "{\"id\":\"5d7189d1-318a-4d5f-b156-c70f0aeee6de\",\"start\":\"2026-10-01T09:00:00.000Z\",\"stop\":\"2026-10-01T09:45:00.000Z\",\"duration\":2700,\"description\":\"Fixture work deleted entry\",\"project_id\":null,\"task_id\":null,\"tags\":[],\"billable\":false,\"device_id\":\"test-device\",\"created_at\":\"2026-10-01T09:00:00.000Z\",\"updated_at\":\"2026-10-16T03:02:53.719Z\",\"deleted\":true}\n{\"id\":\"8cc9c26b-b1a8-48f6-a350-ca8f29a7f453\",\"start\":\"2026-10-15T08:00:00.000Z\",\"stop\":null,\"duration\":0,\"description\":\"Fixture work running\",\"project_id\":null,\"task_id\":null,\"tags\":[],\"billable\":false,\"device_id\":\"test-device\",\"created_at\":\"2026-10-15T08:00:00.000Z\",\"updated_at\":\"2026-10-15T08:00:00.000Z\",\"deleted\":false}\n"
+  },
+  "docs/space~work/projects.json": {
+   "text": "[\n  {\n    \"id\": \"fafb5923-c32d-4d10-8fb0-0e18d795f107\",\n    \"name\": \"Old\",\n    \"client_id\": null,\n    \"color\": \"#000000\",\n    \"billable\": false,\n    \"rate\": null,\n    \"currency\": \"USD\",\n    \"active\": false,\n    \"created_at\": \"2026-07-01T00:00:00.000Z\",\n    \"updated_at\": \"2026-10-16T03:02:53.718Z\",\n    \"deleted\": true\n  },\n  {\n    \"id\": \"d9b25b06-e3bf-46f2-b90a-16f909b01699\",\n    \"name\": \"Fixture work project\",\n    \"client_id\": \"db4b8ddc-3108-4761-a4ec-e73cda05c3bf\",\n    \"color\": \"#2f6fde\",\n    \"billable\": true,\n    \"rate\": 100,\n    \"currency\": \"USD\",\n    \"active\": true,\n    \"created_at\": \"2026-08-01T00:00:00.000Z\",\n    \"updated_at\": \"2026-08-01T00:00:00.000Z\",\n    \"deleted\": false\n  }\n]\n"
+  },
+  "docs/space~work/clients.json": {
+   "text": "[\n  {\n    \"id\": \"db4b8ddc-3108-4761-a4ec-e73cda05c3bf\",\n    \"name\": \"Fixture work client\",\n    \"archived\": false,\n    \"created_at\": \"2026-08-01T00:00:00.000Z\",\n    \"updated_at\": \"2026-08-01T00:00:00.000Z\",\n    \"deleted\": false\n  }\n]\n"
+  },
+  "docs/space~work/tags.json": {
+   "text": "[\n  {\n    \"id\": \"5f59226d-3cec-4779-8761-4aaa670eaa48\",\n    \"name\": \"deep-work\",\n    \"created_at\": \"2026-08-01T00:00:00.000Z\",\n    \"deleted\": false\n  }\n]\n"
+  },
+  "docs/space~work/notes/Projects/Acme.md": {
+   "text": "---\ntags: [task]\nstatus: open\n---\n# Fixture work note\n\nSome *Markdown* text.\n"
+  },
+  "docs/space~work/notes/projects/ACME (66aa464d).md": {
+   "text": "Same path, other case.\n"
+  },
+  "docs/space~work/notes.json": {
+   "text": "[\n  {\n    \"id\": \"80a4a985-d1c2-4b8e-86ab-744521a360b2\",\n    \"path\": \"Projects/Acme.md\",\n    \"created_at\": \"2026-09-01T08:00:00.000Z\",\n    \"updated_at\": \"2026-09-01T08:00:00.000Z\",\n    \"deleted\": false,\n    \"file\": \"notes/Projects/Acme.md\"\n  },\n  {\n    \"id\": \"22bfad99-a59b-4b04-90ab-717077069e0a\",\n    \"path\": \"Trash/Old.md\",\n    \"created_at\": \"2026-09-01T08:00:00.000Z\",\n    \"updated_at\": \"2026-10-16T03:02:53.719Z\",\n    \"deleted\": true,\n    \"file\": null\n  },\n  {\n    \"id\": \"66aa464d-fcc1-4907-a930-69be1846d3c6\",\n    \"path\": \"projects/ACME.md\",\n    \"created_at\": \"2026-09-01T08:00:00.000Z\",\n    \"updated_at\": \"2026-09-01T08:00:00.000Z\",\n    \"deleted\": false,\n    \"file\": \"notes/projects/ACME (66aa464d).md\"\n  }\n]\n"
+  },
+  "docs/space~work/settings.json": {
+   "text": "{\n  \"week_start\": \"monday\"\n}\n"
+  },
+  "docs/space~work/meta.json": {
+   "text": "{\n  \"schema_version\": 1,\n  \"created_at\": \"2026-10-16T03:02:53.718Z\"\n}\n"
+  }
+ }
+}

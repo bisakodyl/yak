@@ -1,0 +1,36 @@
+/* Backups view and the stale-backup banner: layout only. Tokens: src/app/theme/tokens.css. */
+
+.backup-banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  padding: 0.5rem 1rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface-2);
+}
+.backup-banner span { flex: 1 1 16rem; }
+.backup-banner.warn { border-left: 4px solid var(--warn); }
+.backup-banner.warn span { color: var(--text); font-weight: var(--weight-semibold); }
+.backup-banner.info { border-left: 4px solid var(--info); }
+
+.backups .backup-health { font-weight: var(--weight-semibold); margin: 0.25rem 0 0.75rem; }
+.backups .backup-health.ok { color: var(--ok); }
+.backups .backup-health.warn { color: var(--warn); }
+
+.restore-panel { margin: 1rem 0; border-color: var(--accent); }
+.restore-panel h2 { margin-top: 0; }
+.backup-facts { display: grid; grid-template-columns: max-content 1fr; gap: 0.15rem 1rem; margin: 0 0 0.75rem; }
+.backup-facts dt { color: var(--muted); }
+.backup-facts dd { margin: 0; }
+.verify.ok { color: var(--ok); font-weight: var(--weight-semibold); }
+.verify.bad { color: var(--danger); }
+.confirm-replace { border-top: 1px solid var(--border); margin-top: 0.75rem; padding-top: 0.5rem; }
+
+.backup-history td:last-child { text-align: right; }
+.backup-docs, .backup-history { margin: 0.5rem 0; }
+
+@media (max-width: 40rem) {
+  .backup-history th:nth-child(3), .backup-history td:nth-child(3),
+  .backup-history th:nth-child(5), .backup-history td:nth-child(5) { display: none; }
+}

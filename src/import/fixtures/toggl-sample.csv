@@ -1,0 +1,13 @@
+﻿User,Email,Client,Project,Task,Description,Billable,Start date,Start time,End date,End time,Duration,Tags,Amount (EUR)
+Sample Person,person@example.com,Example Client,Website Redesign,,Homepage layout,Yes,2025-03-10,09:00:00,2025-03-10,11:30:00,2:30:00,"design, review",75.00
+Sample Person,person@example.com,Example Client,Website Redesign,,"Meeting, with ""quotes""",Yes,2025-03-10,13:00:00,2025-03-10,14:00:00,1:00:00,meeting,30.00
+Sample Person,person@example.com,Example Client,Website Redesign,,"Notes on
+two lines",Yes,2025-03-11,08:00:00,2025-03-11,08:30:00,0:30:00,,15.00
+Sample Person,person@example.com,,Internal Admin,,Invoices,No,2025-03-12,10:00:00,2025-03-12,11:00:00,1:00:00,admin,0.00
+Sample Person,person@example.com,,,,Reading,No,2025-03-12,15:00:00,2025-03-12,16:15:00,1:15:00,,0.00
+Sample Person,person@example.com,,Internal Admin,,Late deploy,No,2025-03-13,23:00:00,2025-03-14,01:30:00,2:30:00,admin,0.00
+Sample Person,person@example.com,,Internal Admin,,Long running job,No,2025-03-17,08:00:00,2025-03-18,10:00:00,26:00:00,,0.00
+Sample Person,person@example.com,,Internal Admin,,Night shift,No,2025-03-30,01:30:00,2025-03-30,03:30:00,1:00:00,,0.00
+Sample Person,person@example.com,Example Client,Website Redesign,,Homepage layout,Yes,2025-03-10,09:00:00,2025-03-10,11:30:00,2:30:00,"design, review",75.00
+Sample Person,person@example.com,,Internal Admin,,Bad date row,No,2025-02-31,09:00:00,2025-02-31,10:00:00,1:00:00,,0.00
+Sample Person,person@example.com,Other Client,Website Redesign,,Review call,Yes,2025-03-14,09:00:00,2025-03-14,10:00:00,1:00:00,,30.00

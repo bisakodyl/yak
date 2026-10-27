@@ -1,0 +1,35 @@
+.help-doc { max-width: 42rem; }
+.help-doc h2 { margin-top: 1.25rem; }
+.help-doc h3 { margin-top: 1rem; }
+.help-doc ul, .help-doc ol { padding-left: 1.4rem; margin: 0.4rem 0; }
+.help-doc li { margin: 0.2rem 0; }
+.help-doc table { margin: 0.5rem 0; }
+.help-doc th, .help-doc td { text-align: left; vertical-align: top; padding: 0.2rem 0.4rem; border-bottom: 1px solid var(--border); }
+.help-doc blockquote { margin: 0.5rem 0; padding-left: 0.75rem; border-left: 3px solid var(--border); color: var(--muted); }
+.help-toc ul { padding-left: 1.2rem; display: flex; flex-direction: column; gap: 0.3rem; }
+.help-section { scroll-margin-top: 1rem; }
+.help-link { font-size: var(--text-sm); }
+
+.help-btn { display: inline-flex; align-items: center; justify-content: center; width: 1.75rem; height: 1.75rem; border: 1px solid var(--border); border-radius: 50%; color: var(--muted); text-decoration: none; font-weight: var(--weight-semibold); }
+.help-btn:hover { color: var(--text); }
+@media (max-width: 20rem) {
+  .help-btn { display: none; }
+}
+.help-report-bar { display: flex; gap: 0.5rem; align-items: center; margin: 0.25rem 0 1rem; }
+
+.report-form { display: flex; flex-direction: column; gap: var(--space-3); max-width: 42rem; margin: var(--space-3) 0; }
+.report-form textarea { width: 100%; resize: vertical; }
+.report-check { display: flex; gap: var(--space-2); align-items: flex-start; }
+.report-check input { margin-top: 0.25rem; }
+.report-preview { white-space: pre-wrap; overflow-wrap: anywhere; max-width: 42rem; }
+.report-actions .btn { text-decoration: none; }
+
+.oss-list { list-style: none; padding: 0; margin: 0.5rem 0; max-width: 42rem; }
+.oss-list li { border-bottom: 1px solid var(--border); padding: 0.35rem 0; }
+.oss-list summary { cursor: pointer; overflow-wrap: anywhere; }
+.oss-license { font-size: var(--text-sm); border: 1px solid var(--border); border-radius: var(--radius); padding: 0 0.3rem; margin-left: 0.25rem; }
+.oss-text { white-space: pre-wrap; overflow-wrap: anywhere; font-size: var(--text-sm); background: var(--surface-2); padding: 0.5rem; border-radius: var(--radius); max-height: 20rem; }
+
+.help-btn { position: relative; }
+.help-dot { position: absolute; top: -0.15rem; right: -0.15rem; width: 0.55rem; height: 0.55rem; border-radius: 50%; background: var(--accent); border: 1px solid var(--surface); }
+.change-date { font-size: var(--text-sm); font-weight: 400; margin-left: 0.4rem; }
