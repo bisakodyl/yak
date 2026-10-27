@@ -10,8 +10,8 @@
 
 ## Tasks
 
-- A task is a line with a checkbox in any note: `- [ ] Send invoice`.
-- **Tasks** lists them across your notes; tick one there or in the note.
+- A task is a note of its own: its front matter `tags` has `task`. **Tasks** lists those notes; type a name and **Add task** to make one. Tick one in the list or set its status in the note.
+- A checkbox line (`- [ ] Send invoice`) in a normal note does **not** appear in Tasks. In a task note, checkbox lines show as its progress (2 of 3). On a checkbox line, **Ctrl+Shift+T** turns the text into a task note and a link to it.
 - Task rules are under **Task values** on **Organize**.
 - The gear on Notes opens note settings: links, files, daily, weekly and monthly notes, and Mirror.
 

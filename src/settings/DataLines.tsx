@@ -58,9 +58,10 @@ function SyncLine() {
   const { sync, account } = useApp();
   const status = useSyncStatus(sync);
   if (!status.paired) return null;
-  const names = status.peers.filter((p) => p.state === 'connected').map((p) => deviceName(account, p.id) ?? p.id.slice(0, 8));
+  const names = status.peers.filter((p) => p.state === 'connected').map((p) => deviceName(account, p.id) ?? 'an unnamed device');
+  const text = names.length > 0 ? `Syncing with ${names.join(', ')}` : status.peers.length === 0 ? 'On · waiting for your first device' : 'On · waiting for your other devices';
   return (
-    <DataLine id="sync" tone={names.length > 0 ? 'ok' : 'off'} label="Sync" text={names.length > 0 ? `Syncing with ${names.join(', ')}` : 'Not syncing'}>
+    <DataLine id="sync" tone={names.length > 0 ? 'ok' : 'off'} label="Sync" text={text}>
       <a href="#/settings/devices">Devices</a>
     </DataLine>
   );

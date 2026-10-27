@@ -108,7 +108,7 @@ function AccountPassphrase(props: { request: Extract<KeyRequest, { kind: 'key' }
       ) : (
         <>
           <p class="hint">
-            It approves devices and shares, and encrypts backups. <strong>If you forget it, nobody can recover it.</strong>
+            It approves devices and shares, and encrypts backups. <strong>If you forget it, nobody can recover it:</strong> you could no longer approve or remove devices, manage shares or open encrypted backups. This is the only time Yak shows it, so write it down.
           </p>
           {own ? (
             <div class="stack">

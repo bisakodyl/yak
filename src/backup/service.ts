@@ -400,11 +400,3 @@ export function backupHealth(s: BackupState, now: number, hasData: boolean): Hea
   if (now - last > limit) return { ok: false, kind: 'stale', text: `The last backup was ${ago(now - last)}.` };
   return { ok: true, kind: 'ok', text: `Backed up ${ago(now - last)}.` };
 }
-
-/** After this many days of use on a device with no backup, the banner nudges (until then the dot alone says so). */
-const NUDGE_AFTER_DAYS = 3;
-
-/** Whether to nudge: the data has never been backed up and this device has been in use for a few days. */
-export function shouldNudge(health: Health, firstSeen: number, now: number): boolean {
-  return health.kind === 'never' && now - firstSeen >= NUDGE_AFTER_DAYS * 86_400_000;
-}

@@ -12,7 +12,7 @@ The **?** in the header opens Help and About before you start.
 
 Already use Yak? The small line below opens two more ways:
 
-- **Join my other device** takes the account of a device you already use. On that device open **Settings**, choose **+** in the table's header, then **Make a one-time code**, and enter or scan it here. That device approves this one.
+- **Join my other device** takes the account of a device you already use. On that device open **Settings**, choose **+ Add a device**, then **Make a one-time code**, and enter or scan it here. That device approves this one.
 - **Restore from a backup** opens **Backup & restore** to bring data back from a folder or file.
 
 ## Then
@@ -20,6 +20,6 @@ Already use Yak? The small line below opens two more ways:
 1. Type what you work on in the **Timer** and press **Start**.
 2. Add a note or a task in **Notes** or **Tasks**.
 3. Set up **Backup & restore** (Settings › Backup & restore). Do this early: a browser can lose its data.
-4. Optional: add a second device with **+** in the table on **Settings**.
+4. Optional: add a second device with **+ Add a device** on **Settings**.
 
 Coming from Toggl? See [Import from Toggl](#/help/import).

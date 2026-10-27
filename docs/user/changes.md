@@ -1,7 +1,14 @@
 # What's new
 
-## 2026-10-27: Phone and newcomer touches
+## 2026-10-27: Before coworkers: backups, pairing, wording, phones, quick wins
 
+- **Backup:** until your first backup works, a bar on every screen says **No backup yet** with **Set up**. Welcome and **Backup & restore** say plainly that clearing this site's data in the browser deletes Yak's data, and **Backup & restore** shows **Storage: kept** or **may be cleared by the browser**.
+- **New sync:** right after **Start syncing**, Sync says **On · waiting for your first device**, and the Devices page no longer claims this device was removed.
+- **Adding a device:** a request to join shows above the code and QR code. Your device names are asked for and saved, so devices show as "Firefox on Linux", not as a string of letters. A phone you approve keeps the account's spaces by itself and opens on the Timer.
+- **Sharing:** a space with someone waiting to join shows "<name> asks to join · Review" on **Settings**.
+- **Words fixed:** Help no longer says checkbox lines in notes appear in **Tasks** (only task notes do); joining says **+ Add a device**; Help explains what losing your passphrase means; What's new lists the newest entries first.
+- **Phones:** while you type a note with the keyboard up, the page header steps aside so the text has room. Entries with tags keep their project on narrow screens.
+- Code fields (one-time codes) no longer capitalise or autocorrect what you type.
 - The header **▶** starts with the text you typed on the Timer page. On phones the header buttons are bigger and **Continue** is just its icon.
 - **Organize** has a **← Settings** link. The command palette hides keyboard hints on touch screens.
 - Notes: bigger formatting buttons on touch screens, with **Undo** and **Redo**. An empty Notes page offers **New note** and **Today's note**. Enter in a note's title moves to the text.
@@ -10,6 +17,7 @@
 - Devices: ids, fingerprints, switching to device keys and Reset moved under **Advanced**.
 - Sharing: **Copy link**, and the name offered is yours, not "Chrome on Linux".
 - The alpha banner no longer touches the screen edges on a phone.
+- Stored data: unchanged.
 
 ## 2026-10-25: Other accounts, and a page for each space and account
 

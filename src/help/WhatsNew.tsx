@@ -3,7 +3,7 @@ import { Markdown } from './Markdown';
 import { type Change, markChangesSeen } from './changes';
 
 /** How many entries the section shows. */
-const SHOWN = 5;
+const SHOWN = 10;
 
 /** Help › What's new: the latest entries of `docs/user/changes.md`. Seeing it clears the dot on the "?". */
 export function WhatsNew({ changes }: { changes: Change[] }) {

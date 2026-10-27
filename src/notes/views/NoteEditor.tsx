@@ -45,6 +45,9 @@ function showFileMessages(m: { notices: string[]; errors: string[] }): void {
 }
 
 /** Mounts CodeMirror for one Y.Text; remounts only when the Y.Text changes. */
+/** A visual viewport at least this much shorter than before means the on-screen keyboard is up. */
+const KEYBOARD_PX = 120;
+
 export function NoteEditor(p: NoteEditorProps) {
   const host = useRef<HTMLDivElement>(null);
   const props = useRef(p);
@@ -154,13 +157,22 @@ export function NoteEditor(p: NoteEditorProps) {
   useEffect(() => {
     const vv = window.visualViewport;
     if (!focused || !vv) return;
-    const update = (): void => setLift(Math.max(0, Math.round(window.innerHeight - vv.height - vv.offsetTop)));
+    // The height before the keyboard opened: some browsers shrink the layout viewport with the keyboard, most only the visual one.
+    const base = Math.max(window.innerHeight, vv.height);
+    const root = document.documentElement;
+    const update = (): void => {
+      setLift(Math.max(0, Math.round(window.innerHeight - vv.height - vv.offsetTop)));
+      // With the keyboard up on a short screen the page header would take the room the text needs: notes.css hides it meanwhile.
+      if (base - vv.height > KEYBOARD_PX) root.setAttribute('data-note-typing', '');
+      else root.removeAttribute('data-note-typing');
+    };
     update();
     vv.addEventListener('resize', update);
     vv.addEventListener('scroll', update);
     return () => {
       vv.removeEventListener('resize', update);
       vv.removeEventListener('scroll', update);
+      root.removeAttribute('data-note-typing');
     };
   }, [focused]);
 

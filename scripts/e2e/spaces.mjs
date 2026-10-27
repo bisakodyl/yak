@@ -40,23 +40,18 @@ await setName(b, 'Bee');
 const toSettings = (p) => p.evaluate(() => { location.hash = '#/settings'; });
 await a.evaluate(() => window.__app.append('space/work', 't', 'work seed '));
 
-// A device that has just joined keeps nothing: no space reaches it until it chooses.
+// A device approved by a one-time code keeps the account's spaces by itself and opens on the Timer (F-20);
+// it can still stop keeping one afterwards.
 const c = await mk('C');
-await joinByInvite(a, c, { keep: false });
-await c.locator('.notice', { hasText: 'keeps no spaces yet' }).waitFor({ timeout: 30000 });
+await joinByInvite(a, c);
 await setName(c, 'Cee');
-await sleep(2500);
-check((await spaceDocsOf(c)).length === 0, 'a device that has just joined holds no space document');
-check((await c.locator('.tabs a').allInnerTexts()).join() === 'Settings', 'it shows only Settings until it keeps a space');
 await toSettings(c);
 await c.locator('table.st-keeps').waitFor();
-check((await keepsBox(c, 'This device', 'Work').isChecked()) === false && (await keepsBox(c, 'This device', 'Personal').isChecked()) === false, 'its spaces are not ticked');
-await keepsBox(c, 'This device', 'Work').check();
-check((await until(async () => (await text(c, 'space/work')).includes('work seed'), 15000)) >= 0, 'choosing Work gets it Work');
-check(!(await spaceDocsOf(c)).some((d) => d === 'space/personal' || d === 'space/personal/time'), 'and no Personal');
-check((await c.evaluate(() => Object.keys(window.__app.spaces()))).join() === 'work', 'only Work is in its space list');
+check((await until(async () => (await keepsBox(c, 'This device', 'Work').isChecked()) && (await keepsBox(c, 'This device', 'Personal').isChecked()), 15000)) >= 0, 'its spaces are ticked without pressing Keep');
+check((await until(async () => (await text(c, 'space/work')).includes('work seed'), 15000)) >= 0, 'and Work reached it');
+await keepsBox(c, 'This device', 'Personal').uncheck();
+check((await until(async () => !(await keepsBox(c, 'This device', 'Personal').isChecked()), 5000)) >= 0, 'it can stop keeping Personal');
 await keepsBox(c, 'This device', 'Personal').check();
-check((await until(async () => (await spaceDocsOf(c)).some((d) => d === 'space/personal'), 15000)) >= 0, 'ticking Personal later brings Personal');
 await c.close();
 
 await toSettings(a);

@@ -61,6 +61,8 @@ const link = await hook(a1, () => window.__app.shareOpen('personal', 'Alice'));
 check(!!link, 'A makes a share link');
 await hook(b1, ([c, n]) => window.__app.shareAsk(c, n), [link, 'Bob']);
 (await until(async () => (await hook(b1, () => window.__app.shareJoin()))?.phase === 'compare' && ((await hook(a1, () => window.__app.shareHost()))?.requests.length ?? 0) > 0, 40000)) >= 0 ? ok('both screens show a code') : fail('no code shown');
+await a1.evaluate(() => { location.hash = '#/settings'; });
+check((await until(async () => /Bob asks to join/.test(await a1.locator('[data-share-request]').innerText().catch(() => '')), 10000)) >= 0, 'Settings shows "Bob asks to join · Review" on the space row');
 const codeB = (await hook(b1, () => window.__app.shareJoin())).compare;
 const reqA = (await hook(a1, () => window.__app.shareHost())).requests[0];
 check(codeB === reqA.compare, `the codes match (${codeB})`);

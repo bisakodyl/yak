@@ -21,7 +21,8 @@ export function parseChanges(source: string): Change[] {
       return m ? { id: m[1] as string, title: (m[2] ?? '').trim(), body: rest.join('\n').trim() } : undefined;
     })
     .filter((c): c is Change => c !== undefined)
-    .sort((a, b) => (a.id < b.id ? 1 : -1));
+    // Newest date first; entries of one date keep the file's order (already newest first), so they never swap.
+    .sort((a, b) => (a.id === b.id ? 0 : a.id < b.id ? 1 : -1));
 }
 
 function read(key: string): string | null {

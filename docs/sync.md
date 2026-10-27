@@ -167,3 +167,6 @@ Accepted limits (S-203):
 - Devices on other networks connect directly only when both routers allow it (STUN is set, device setting in Devices › STUN servers); behind carrier NAT or strict firewalls there is no path until the relay fallback (#169). TURN is not set.
 - ntfy.sh rate limits are not guaranteed; it also forwards ciphertext to Firebase for Android push.
 - Chrome may hide LAN addresses behind mDNS `.local`; asking for camera permission first makes it use real addresses.
+- Cloudflare Workers Free plan: about 100 000 requests a day for the whole account.
+- The relay's own budget is 50 000 estimated requests a day (`RELAY_DAY_REQUESTS`, UTC reset): at 80% new data links are refused, at 100% every `/signal` connection is refused and relayed messages are dropped. `RELAY=off` is the manual kill switch.
+- The owner gets Cloudflare's usage notification at 85% of the plan limit.

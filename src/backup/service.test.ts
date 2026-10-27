@@ -3,7 +3,7 @@ import { EventBus } from '../core/bus';
 import { MemoryStore } from '../core/history/memory-store';
 import { MemoryDir, SubDir } from './dir';
 import { openBackup } from './restore';
-import { BackupService, DEFAULT_STALE_HOURS, HOURLY_MS, STOP_DEBOUNCE_MS, backupHealth, shouldNudge, type BackupState, type FolderInfo, type StoredStatus } from './service';
+import { BackupService, DEFAULT_STALE_HOURS, HOURLY_MS, STOP_DEBOUNCE_MS, backupHealth, type BackupState, type FolderInfo, type StoredStatus } from './service';
 import { listBackups } from './store';
 import { addEntry, memoryStore, seedSpace } from './testing';
 
@@ -203,16 +203,5 @@ describe('backupHealth', () => {
     expect(backupHealth(s({ folder: { state: 'none' } }), now, true)).toMatchObject({ ok: false, kind: 'never' });
     expect(backupHealth(s({ folder: { state: 'unsupported' } }), now, true).text).toMatch(/Download a backup/);
     expect(backupHealth(s({ folder: { state: 'none' } }), now, false).ok).toBe(true);
-  });
-});
-
-describe('shouldNudge', () => {
-  const never = { ok: false, kind: 'never', text: '' } as const;
-  it('waits a few days after first use, and only for a device with no backup', () => {
-    const day = 86_400_000;
-    expect(shouldNudge(never, 0, 2 * day)).toBe(false);
-    expect(shouldNudge(never, 0, 3 * day)).toBe(true);
-    expect(shouldNudge({ ok: false, kind: 'stale', text: '' }, 0, 9 * day)).toBe(false);
-    expect(shouldNudge({ ok: true, kind: 'ok', text: '' }, 0, 9 * day)).toBe(false);
   });
 });
