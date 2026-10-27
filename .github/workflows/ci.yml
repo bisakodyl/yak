@@ -2,22 +2,12 @@ name: CI
 
 # Public repo, so hosted minutes are free (decision F-6).
 # Every non-draft PR and every push to main runs types, unit tests, build and the browser suites.
-# Docs-only changes skip CI. If Actions is unavailable, scripts/ci-local.sh posts the same checks as commit statuses (docs/testing.md).
+# Every PR runs Checks, docs-only included, so the required check always reports. If Actions is unavailable, scripts/ci-local.sh posts the same checks as commit statuses (docs/testing.md).
 on:
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
-    paths-ignore:
-      - 'docs/**'
-      - '**/*.md'
-      - '.claude/**'
-      - '.github/ISSUE_TEMPLATE/**'
   push:
     branches: [main]
-    paths-ignore:
-      - 'docs/**'
-      - '**/*.md'
-      - '.claude/**'
-      - '.github/ISSUE_TEMPLATE/**'
   workflow_dispatch:
 
 permissions:

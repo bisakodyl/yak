@@ -12,7 +12,7 @@ Prove as much as possible without a person; real devices check only what a lapto
 | Real devices | Checklist below | Sleep, Wi-Fi change, a restricted network, the real relay |
 
 CI (F-6 in `docs/decisions/app.md`):
-- Every non-draft PR and every push to `main`: types, unit tests, build and the browser suites (job `Checks`). Docs-only changes skip CI. Also by hand (Actions → CI → Run workflow).
+- Every non-draft PR and every push to `main`: types, unit tests, build and the browser suites (job `Checks`). Docs-only changes run it too, so the required check always reports. Also by hand (Actions → CI → Run workflow).
 - Hosted CI is the record; run suites locally while working.
 - Only if Actions is unavailable (F38b):
   - Push the branch, commit everything, then run `scripts/ci-local.sh` from the checkout (needs `gh` logged in with repo access; about 7 minutes with the browser suites).
