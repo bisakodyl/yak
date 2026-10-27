@@ -36,8 +36,8 @@ Issue and PR numbers here and in `docs/` refer to `dynamodal/yak`; numbers and d
 - A change testers will notice (and any stored-data migration, F39) adds a line to `docs/user/changes.md` in the same PR: newest entry first, `## YYYY-MM-DD: title`, short bullets. A new date makes the dot on the header "?" appear.
 - Do not edit shared summaries in feature PRs: no check counts, no "current state". Update `docs/roadmap.md` only when a milestone changes.
 - Design notes for unbuilt work live in `docs/design/`. When the work ships, move what stays true into `architecture.md` or `decisions/` and delete the note.
-- Tests: `npm test`, `npx tsc --noEmit`, and `npm run e2e <suite>` for the suites you touch while working; the full `npm run e2e` once before opening the PR. Never loop tests against public ntfy.sh.
-- Actions minutes out (or CI red from billing): push, then `scripts/ci-local.sh` posts `local-ci/checks` and `local-ci/e2e` statuses on HEAD; the PR cites them (F38b, `docs/testing.md`).
+- Tests: `npm test`, `npx tsc --noEmit`, and `npm run e2e <suite>` for the suites you touch while working; hosted CI runs the full browser suites on the PR. Never loop tests against public ntfy.sh.
+- Hosted CI runs everything, browser suites included, on every non-draft PR (F-6). Only if Actions is unavailable: push, then `scripts/ci-local.sh` posts `local-ci/checks` and `local-ci/e2e` statuses on HEAD; the PR cites them (`docs/testing.md`).
 - Remove your worktree when the PR merges.
 
 ## Writing

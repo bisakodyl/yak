@@ -11,17 +11,15 @@ Prove as much as possible without a person; real devices check only what a lapto
 | Browser suites | `npm run e2e [suite…]` | Isolated profiles as devices, pairing via mock relay or ntfy, every page, offline, real CSP |
 | Real devices | Checklist below | Sleep, Wi-Fi change, a restricted network, the real relay |
 
-CI (F38 in `docs/decisions/app.md`):
-- Every PR and merge to `main`: types, unit tests, build. Drafts and docs-only changes skip CI.
-- Browser suites: only on PRs labelled `e2e`, or by hand (Actions → CI → Run workflow).
-- Otherwise the full local `npm run e2e` before the PR is the record; the PR says its result.
-- Out of Actions minutes (F38b):
+CI (F-6 in `docs/decisions/app.md`):
+- Every non-draft PR and every push to `main`: types, unit tests, build and the browser suites (job `Checks`). Docs-only changes run it too, so the required check always reports. Also by hand (Actions → CI → Run workflow).
+- Hosted CI is the record; run suites locally while working.
+- Only if Actions is unavailable (F38b):
   - Push the branch, commit everything, then run `scripts/ci-local.sh` from the checkout (needs `gh` logged in with repo access; about 7 minutes with the browser suites).
   - It runs the CI steps plus `npm run e2e` and posts `local-ci/checks` and `local-ci/e2e` commit statuses on HEAD; they show on the PR's Checks list.
   - `--no-e2e` skips the browser suites; `--dry-run` posts nothing.
   - To check someone else's PR, run it in a worktree of the PR head (it refuses a dirty tree or an unpushed commit).
-  - The status is advisory (no branch protection on the free private plan) and only as trustworthy as the machine; a new push needs a new run.
-  - Hosted `CI` is enabled in `dynamodal/yak` and runs free now the repo is public; `scripts/ci-local.sh` remains for when Actions minutes run out.
+  - The status is only as trustworthy as the machine; a new push needs a new run.
 
 ## Browser suites
 

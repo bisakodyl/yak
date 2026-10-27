@@ -1,7 +1,8 @@
 {
   // Cloudflare Workers: serves the files built into dist/ and runs a small signaling relay.
   // The build command is `npm run build`; the deploy command is `npx wrangler deploy`.
-  "name": "yak",
+  // The Cloudflare Worker keeps its codename; the app is Yak (decisions F28, F-201).
+  "name": "punchdeck",
   "main": "worker/index.ts",
   "compatibility_date": "2026-10-12",
   "assets": {
