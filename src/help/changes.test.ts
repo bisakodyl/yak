@@ -13,6 +13,10 @@ describe('changes', () => {
     expect(c.map((x) => x.id)).toEqual(['2026-10-19', '2026-10-17']);
     expect(c[0]).toMatchObject({ title: 'Newer', body: '- b\n- c' });
   });
+  it('keeps entries of one date in the file order', () => {
+    const c = parseChanges('## 2026-10-25: Third\n\n- c\n\n## 2026-10-25: Second\n\n- b\n\n## 2026-10-25: First\n\n- a\n\n## 2026-10-24: Older\n\n- o\n');
+    expect(c.map((x) => x.title)).toEqual(['Third', 'Second', 'First', 'Older']);
+  });
   it('a device with no record starts up to date', () => {
     expect(hasNewChanges('2026-10-19')).toBe(false);
     expect(changesSeen('2026-10-20')).toBe('2026-10-19');

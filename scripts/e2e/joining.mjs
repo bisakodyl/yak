@@ -25,6 +25,13 @@ const allSpaceNames = async (p) => Object.keys(await hook(p, () => window.__app?
 const a = await mk('A');
 await startSyncing(a);
 const accountA = await accountId(a);
+// Fresh account (F-20): not "removed or missed a change", and the sync line says it waits for the first device.
+check(!/missed a change/.test(await a.locator('main').innerText()), 'fresh account: the Devices page does not claim this device was removed');
+check(/No other device yet/.test(await a.locator('main').innerText()), 'fresh account: it says no other device yet');
+await a.evaluate(() => { location.hash = '#/settings'; });
+check((await until(async () => /On · waiting for your first device/.test(await a.locator('[aria-label="Status"]').innerText().catch(() => '')), 10000)) >= 0, 'fresh account: Sync says On · waiting for your first device');
+await a.evaluate(() => { location.hash = '#/settings/devices'; });
+await a.getByRole('button', { name: /Make a (new )?one-time code/ }).first().waitFor({ timeout: 15000 });
 const spacesA = await spaces(a);
 JSON.stringify(Object.keys(spacesA).sort()) === '["personal","work"]' ? ok('A starts with Personal and Work') : fail(`A spaces ${JSON.stringify(spacesA)}`);
 await a.evaluate(() => window.__app.append('space/personal', 't', 'from A '));
@@ -35,6 +42,22 @@ await joinByInvite(a, b);
 (await until(async () => (await accountId(b)) === accountA, 30000)) >= 0 ? ok('fresh device adopted the account') : fail(`B account ${await accountId(b)} vs ${accountA}`);
 (await until(async () => JSON.stringify(await spaces(b)) === JSON.stringify(spacesA), 20000)) >= 0 ? ok('fresh device has exactly the account\'s spaces') : fail(`B spaces ${JSON.stringify(await spaces(b))}`);
 (await until(async () => ((await hook(b, () => window.__app.text('space/personal', 't'))) ?? '').includes('from A'), 20000)) >= 0 ? ok('fresh device received the data') : fail('B has no data from A');
+
+// The join request shows above the code and QR code, and the laptop has a name, not an id.
+{
+  const b2 = await mk('B2');
+  await a.getByRole('button', { name: /Make a (new )?one-time code/ }).first().click();
+  const code = (await a.locator('[data-invite-code]').innerText()).trim();
+  await (await openJoin(b2)).locator('input[aria-label="One-time code"]').fill(code);
+  await b2.getByRole('button', { name: 'Join', exact: true }).click();
+  await a.locator('.invite-requests [data-compare]').waitFor({ timeout: 30000 });
+  const [req, box] = await Promise.all([a.locator('.invite-requests').boundingBox(), a.locator('.secret-box').boundingBox()]);
+  check(req && box && req.y < box.y, 'the join request is above the code');
+  check((await a.locator('input[aria-label="Name of this device"]').inputValue()).trim() !== '', 'the device making the code has a saved name');
+  await a.locator('.invite-requests').getByRole('button', { name: 'Decline' }).click();
+  await a.getByRole('button', { name: 'Close the code' }).click();
+  await b2.context().close();
+}
 
 // A device with its own data joins: its Personal is kept, named after the device.
 const c = await mk('C');

@@ -56,6 +56,8 @@ export function DevicesView({ params }: ViewProps) {
   // With keys required: a signed removal of this device's keys and no new approval (#258); otherwise the flag.
   const thisRemoved = required ? trust.removedDevices.has(deviceId) && !trust.certs.has(deviceId) : devices.get(deviceId)?.removed === true;
   const peers = status.peers.filter((p) => !isOut(p.id) && !devices.get(p.id)?.left);
+  /** Another device is on record for this account: without one, a quiet device list is just a new setup, not a missed change. */
+  const knownOthers = [...devices.entries()].some(([id, d]) => id !== deviceId && !d.left);
   const [removeError, setRemoveError] = useState('');
 
   const [joinSecret, setJoinSecret] = useState('');
@@ -174,9 +176,11 @@ export function DevicesView({ params }: ViewProps) {
         <p class="hint">
           {!status.paired
             ? 'This device is not in an account of synced devices yet.'
-            : required
-              ? 'No other device is reachable now. If your other devices are on and still sync with each other, this device was removed or missed a change: join again with a one-time code, under "Join again or remove this device" below.'
-              : 'No other devices yet. If your other devices switched to device keys and this one stopped hearing from them, join again with a one-time code, under "Join again or remove this device" below.'}
+            : !knownOthers
+              ? 'No other device yet. Add one with + Add a device on the Settings page; it shows up here when it joins.'
+              : required
+                ? 'No other device is reachable now. If your other devices are on and still sync with each other, this device was removed or missed a change: join again with a one-time code, under "Join again or remove this device" below.'
+                : 'No other devices yet. If your other devices switched to device keys and this one stopped hearing from them, join again with a one-time code, under "Join again or remove this device" below.'}
         </p>
       )}
       <ul class="device-list">
@@ -337,6 +341,10 @@ export function DevicesView({ params }: ViewProps) {
             placeholder="One-time code from your other device"
             value={joinSecret}
             size={36}
+            autocapitalize="off"
+            autocorrect="off"
+            spellcheck={false}
+            autocomplete="off"
             onInput={(e) => setJoinSecret((e.target as HTMLInputElement).value)}
           />
           <Button variant="primary" disabled={busy || !joinSecret.trim()} onClick={joinNow}>

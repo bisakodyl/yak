@@ -4,8 +4,8 @@ Sync is optional and only between your own devices. Everything works without it.
 
 ## Start syncing and add a device
 
-1. On the first device open **Settings**, choose **+** in the table's header (or **+ Add a device**), then **Start syncing my devices**. If you have no passphrase yet, a sheet asks you to create one: Yak suggests words, or you type your own, and you tick **I've written it down**.
-2. On the new device choose **Join my other device** when it starts, or open **Settings** and choose **+** if it already runs. Enter the one-time code from step 3.
+1. On the first device open **Settings**, choose **+ Add a device**, then **Start syncing my devices**. If you have no passphrase yet, a sheet asks you to create one: Yak suggests words, or you type your own, and you tick **I've written it down**.
+2. On the new device choose **Join my other device** when it starts, or open **Settings** and choose **+ Add a device** if it already runs. Enter the one-time code from step 3.
 3. On the first device choose **Make a one-time code** on the same device page. Both screens show a short code. If they match, choose **The codes match** on the new device and **Approve** on the other. If not, start again. A code adds one device and works for 15 minutes.
 4. Pairing is done once. Devices reconnect by themselves while the app is open.
 
@@ -24,7 +24,7 @@ A device page shows **Switch to device keys** on it.
 3. Before you press it, the page lists the devices that will have to join again.
 
 A device that is not ticked, has no keys yet or runs an older Yak stops syncing, but nothing on it is deleted.
-Open its device page (Settings, then the device's name or **+**), choose **Join again with a one-time code**, and approve it from another device: what it wrote meanwhile merges back.
+Open its device page (Settings, then the device's name or **+ Add a device**), choose **Join again with a one-time code**, and approve it from another device: what it wrote meanwhile merges back.
 Update Yak on it first if it is old.
 
 ## What to expect
@@ -48,6 +48,13 @@ With device keys required, a space can be shared with another account: open the 
 ## Passphrase
 
 Yak asks for your passphrase in one sheet, when an action needs it. The **Passphrase** line on **Settings** shows whether it is unlocked and opens the sheet; **Backup & restore** lets you forget it on this device.
+Yak shows a new passphrase once, when you create it. Write it down or keep it in a password manager: Yak cannot recover it and nobody can reset it for you.
+
+**If you lose the passphrase:**
+- Devices already approved keep working and your data stays on them.
+- You can no longer approve a new device, remove a device or make or end a share, because those need the passphrase.
+- Encrypted backups can no longer be opened.
+- Back up while you still have it, and keep it somewhere safe.
 A device that syncs with nothing else can share a space too: creating the passphrase in the sheet is all it takes.
 It needs at least 20 characters; four or more random words is best. **Show** reveals what you type.
 Older, shorter passphrases keep working.

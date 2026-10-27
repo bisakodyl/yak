@@ -125,20 +125,6 @@ export function saveBlobFile(fileName: string, blob: Blob): void {
   setTimeout(() => URL.revokeObjectURL(url), 10 * 60_000);
 }
 
-const FIRST_SEEN_KEY = `${STORAGE_PREFIX}-backup-first-seen`;
-
-/** When this device first ran the app (kept on the device, set on first call): the clock for the "Turn on backups" nudge. */
-export function deviceFirstSeen(now = Date.now()): number {
-  try {
-    const stored = Number(localStorage.getItem(FIRST_SEEN_KEY));
-    if (stored > 0) return stored;
-    localStorage.setItem(FIRST_SEEN_KEY, String(now));
-  } catch {
-    // Without storage the nudge never comes: first use is always "now".
-  }
-  return now;
-}
-
 const REMIND_KEY = `${STORAGE_PREFIX}-backup-remind-until`;
 const DAY_MS = 86_400_000;
 

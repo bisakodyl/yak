@@ -6,7 +6,7 @@ import type { DocumentStore } from '../core/doc-store';
 import type { Approval } from '../sync/invite';
 import { choicePin } from './account-keys-runtime';
 import { deviceName, setDeviceName } from '../core/devices';
-import { keepAll } from '../core/keeps';
+import { keepAll, keepUndecided } from '../core/keeps';
 import { hasData, type StorageLike } from '../core/account-setup';
 import { STORAGE_PREFIX } from '../constants';
 import type { SyncService } from '../sync/sync-service';
@@ -51,7 +51,7 @@ export async function adoptAccount(accountId: string, state: AccountState, sync:
 }
 
 /** Keep this device's spaces with data and its name for the account it joins, and make that account this device's. */
-function carryOver(accountId: string, state: AccountState, storage: StorageLike, me: string): void {
+function carryOver(accountId: string, state: AccountState, storage: StorageLike, me: string, keepAccountSpaces = false): void {
   const keep = state.current.spaces
     .filter((s) => {
       const doc = state.current.spaceDocs.get(s.id);
@@ -62,7 +62,7 @@ function carryOver(accountId: string, state: AccountState, storage: StorageLike,
   // This device's name lives in the old account document; carry it over.
   const name = deviceName(state.doc, me);
   if (accountId === state.id) return;
-  storage.setItem(PENDING_KEY, JSON.stringify({ spaces: keep, ...(name ? { name } : {}) }));
+  storage.setItem(PENDING_KEY, JSON.stringify({ spaces: keep, ...(name ? { name } : {}), ...(keepAccountSpaces ? { keepAccountSpaces: true } : {}) }));
   storage.setItem(CURRENT_ACCOUNT_KEY, accountId);
 }
 
@@ -80,7 +80,8 @@ export async function adoptApprovedAccount(a: Approval, o: { store: DocumentStor
   const key = (await readAccountKeys(doc)).find((k) => k.fingerprint === a.account);
   if (!key) throw new Error('The approval names no account key.');
   choicePin(o.storage).set({ fingerprint: a.account, sealed: true, publicKey: key.publicKey, by: key.by, ids: [a.accountId] });
-  carryOver(a.accountId, o.state, o.storage, o.me);
+  // An enrolled device of the account approved this one, so it keeps the account's own spaces without another question.
+  carryOver(a.accountId, o.state, o.storage, o.me, true);
   await o.sync.adoptPairing(secret, a.signalingUrl, a.accountId);
   o.sync.log.log('pairing', `approved into account ${a.accountId.slice(0, 8)}`);
   await new Promise((r) => setTimeout(r, 800));
@@ -117,14 +118,14 @@ export async function takeRestoredAccount(
 
 /** After a join, add the spaces this device brought, once the joined account's spaces have arrived. */
 export async function addPendingLocalSpaces(state: AccountState, storage: StorageLike, me: string): Promise<void> {
-  let parsed: { spaces?: { id: string; name: string }[]; name?: string } = {};
+  let parsed: { spaces?: { id: string; name: string }[]; name?: string; keepAccountSpaces?: boolean } = {};
   try {
     parsed = JSON.parse(storage.getItem(PENDING_KEY) ?? '{}') as typeof parsed;
   } catch {
     parsed = {};
   }
   const pending = Array.isArray(parsed.spaces) ? parsed.spaces : [];
-  if (pending.length === 0 && !parsed.name) return;
+  if (pending.length === 0 && !parsed.name && !parsed.keepAccountSpaces) return;
   // Wait for the joined account's spaces, so names are compared with what is there (at most 15 s).
   const start = Date.now();
   while (readSpaces(state.doc).length === 0 && Date.now() - start < 15_000) await new Promise((r) => setTimeout(r, 250));
@@ -134,6 +135,19 @@ export async function addPendingLocalSpaces(state: AccountState, storage: Storag
     if (readSpaces(state.doc).some((s) => s.id === p.id)) continue;
     addSpace(state.doc, p.id, freeSpaceName(state.doc, p.name, hint), undefined, me);
   }
+  if (parsed.keepAccountSpaces) {
+    // Spaces still undecided: the joined account's own. The ones this device brought were added above with this device keeping them.
+    keepUndecided(state.doc, me, readSpaces(state.doc).map((s) => s.id));
+  }
   storage.setItem(PENDING_KEY, '{}');
   await state.refresh();
+  // The join began on Settings (no spaces yet); now that there are some, start on the Timer. A deeper link is left alone.
+  if (parsed.keepAccountSpaces && readSpaces(state.doc).length > 0) goToTimerFromBareSettings();
+}
+
+/** After a join: leave Settings (where joining happens) for the Timer, unless the person already went to Notes, Tasks or the like. */
+function goToTimerFromBareSettings(): void {
+  if (typeof location === 'undefined') return;
+  const path = location.hash.replace(/^#\/?/, '').replace(/\/+$/, '');
+  if (path === '' || path === 'settings' || path.startsWith('settings/') || path === 'welcome') location.hash = '#/timer';
 }
