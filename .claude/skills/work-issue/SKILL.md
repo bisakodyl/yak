@@ -13,10 +13,9 @@ They are `dynamodal/yak` numbers; earlier decisions and docs cite old issue numb
 1. `git fetch origin` and `gh issue view <n>`. Read the design note or decisions it links; skip anything already covered.
 2. Branch from up-to-date `origin/main`: `git switch -c <type>/<topic> origin/main` (`feat/`, `fix/`, `docs/`, `chore/`), in a worktree if another session uses the main folder.
 3. Build it. While working run `npx tsc --noEmit`, the unit tests you touch, and `npm run e2e <suite>` for the suites you touch.
-4. Before the PR: `npm test` and the full `npm run e2e`. CI runs no browser suites by default (it costs paid minutes), so the local run is the record: put its result in the PR.
+4. Before the PR: `npm test` and `npx tsc --noEmit`, plus `npm run e2e <suite>` for the suites you touched. Hosted CI runs the full browser suites on every non-draft PR (F-6); `scripts/ci-local.sh` only if Actions is unavailable.
 5. PR **into `main`, never another branch**: `gh pr create --base main`, using the template; first line `Closes #<n>`.
    - Push once when it is ready; every push to an open PR runs CI. Open it as a draft if you expect more pushes, and mark it ready at the end.
-   - Add the `e2e` label only when the change touches sync, the relay or the Worker and something could differ from your machine.
 6. Decisions made on the way: one row at the end of the matching `docs/decisions/*.md` in the same PR, id = file prefix + issue number (`F-195`, then `F-195b`). `.gitattributes` merges these files by union, so merging `main` keeps both sides' rows without a conflict; check the table afterwards.
 7. Reply with one line: `#<n> → PR #<m>: <title>`.
 
