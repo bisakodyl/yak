@@ -11,7 +11,10 @@
     "noEmit": true,
     "skipLibCheck": true,
     "isolatedModules": true,
-    "types": ["@cloudflare/workers-types"]
+    "types": ["@cloudflare/workers-types"],
+    "noUncheckedSideEffectImports": false,
+    "libReplacement": true,
+    "rootDir": "."
   },
   "include": ["./**/*.ts"]
 }

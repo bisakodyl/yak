@@ -12,6 +12,9 @@
     "skipLibCheck": true,
     "isolatedModules": true,
     "types": ["vite/client"],
+    "noUncheckedSideEffectImports": false,
+    "libReplacement": true,
+    "rootDir": ".",
     "jsx": "react-jsx",
     "jsxImportSource": "preact"
   },
